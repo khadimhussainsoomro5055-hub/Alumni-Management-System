@@ -7,6 +7,7 @@ const bcrypt = require("bcryptjs");
 const session = require("express-session");
 const multer = require("multer");
 const fs = require("fs");
+const fileType = require("file-type");
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -178,6 +179,13 @@ app.get("/profile",auth,async(req,res)=>{
 app.post("/profile",auth,upload.single("profile_photo"),async(req,res)=>{
   const p=req.body;
   try{
+    if (req.file) {
+      const detected = await fileType.fromFile(req.file.path);
+      if (!detected || !["image/jpeg", "image/png", "image/webp"].includes(detected.mime)) {
+        fs.unlinkSync(req.file.path);
+        return res.status(400).send("Uploaded file content is not a supported image.");
+      }
+    }
     const [oldRows]=await db.promise().execute("SELECT profile_photo FROM alumni WHERE id=?",[req.session.user.id]);
     let photo=oldRows[0]?.profile_photo || null;
     if(req.file){
