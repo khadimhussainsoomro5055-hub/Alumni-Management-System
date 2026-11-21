@@ -52,3 +52,16 @@ test("signup password minimum matches server validation", () => {
   assert.match(app, /p\.password\.length < 8/);
   assert.match(view, /minlength="8"/);
 });
+
+test("registration and contact forms are integrated with SMTP", () => {
+  const app = read("app.js");
+  const contact = read("views/contact.ejs");
+  const signup = read("views/signup.ejs");
+  assert.match(app, /nodemailer\.createTransport/);
+  assert.match(app, /await sendMail\(/);
+  assert.match(app, /app\.post\("\/contact"/);
+  assert.match(app, /app\.post\("\/signup"/);
+  assert.match(contact, /action="\/contact"/);
+  assert.match(contact, /name="_csrf"/);
+  assert.match(signup, /action="\/signup"/);
+});
