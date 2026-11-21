@@ -73,6 +73,13 @@
           </div>
         <% }) %>
       </div>
+      <% if (totalPages > 1) { %>
+        <nav class="pagination" aria-label="Directory pages">
+          <% if (page > 1) { %><a class="btn light" href="/alumni?search=<%= encodeURIComponent(search) %>&page=<%= page - 1 %>">Previous</a><% } %>
+          <span>Page <%= page %> of <%= totalPages %></span>
+          <% if (page < totalPages) { %><a class="btn light" href="/alumni?search=<%= encodeURIComponent(search) %>&page=<%= page + 1 %>">Next</a><% } %>
+        </nav>
+      <% } %>
     </main>
   </div>
 </body>
