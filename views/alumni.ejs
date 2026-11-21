@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Alumni Directory - Alumni Connect</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="app-header">
+    <a class="logo" href="/dashboard">Alumni Connect</a>
+    <div class="header-right">
+      <span class="header-name"><%= sessionUser ? sessionUser.full_name : "" %></span>
+
+      <% if (sessionUser && sessionUser.profile_photo) { %>
+        <img class="header-avatar" src="<%= sessionUser.profile_photo %>">
+      <% } else { %>
+        <div class="header-avatar-fallback">
+          <%= sessionUser ? sessionUser.full_name.charAt(0).toUpperCase() : "A" %>
+        </div>
+      <% } %>
+
+      <a class="logout" href="/logout">Logout</a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-title">Main Menu</div>
+      <a class="nav-item" href="/dashboard">Dashboard</a>
+      <a class="nav-item active" href="/alumni">Alumni Directory</a>
+      <a class="nav-item" href="/events">Events</a>
+      <a class="nav-item" href="/jobs">Jobs &amp; Opportunities</a>
+
+      <div class="sidebar-title">Account</div>
+      <a class="nav-item" href="/profile">My Profile</a>
+      <a class="nav-item" href="/logout">Logout</a>
+    </aside>
+
+    <main class="main">
+      <div class="page-head">
+        <div>
+          <h1>Alumni Directory</h1>
+          <p class="muted">Find and connect with fellow alumni.</p>
+        </div>
+      </div>
+
+      <form class="search" action="/alumni" method="GET">
+        <input name="search" value="<%= search %>" placeholder="Search by name, department, job or city...">
+        <button class="btn" type="submit">Search</button>
+      </form>
+
+      <div class="alumni-grid">
+        <% alumni.forEach(a => { %>
+          <div class="alumni-card">
+            <% if (a.profile_photo) { %>
+              <img class="avatar" src="<%= a.profile_photo %>">
+            <% } else { %>
+              <div class="avatar-fallback">
+                <%= a.full_name.charAt(0).toUpperCase() %>
+              </div>
+            <% } %>
+
+            <h2><%= a.full_name %></h2>
+            <div class="designation"><%= a.current_job || "Alumni" %></div>
+            <p><strong><%= a.department %></strong></p>
+            <p>Batch: <%= a.graduation_year %></p>
+            <p><%= a.city || "Location not provided" %></p>
+            <a class="btn" href="mailto:<%= a.email %>">Contact</a>
+          </div>
+        <% }) %>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

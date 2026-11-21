@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Events - Alumni Connect</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="app-header">
+    <a class="logo" href="/dashboard">Alumni Connect</a>
+    <div class="header-right">
+      <span class="header-name"><%= sessionUser ? sessionUser.full_name : "" %></span>
+
+      <% if (sessionUser && sessionUser.profile_photo) { %>
+        <img class="header-avatar" src="<%= sessionUser.profile_photo %>">
+      <% } else { %>
+        <div class="header-avatar-fallback">
+          <%= sessionUser ? sessionUser.full_name.charAt(0).toUpperCase() : "A" %>
+        </div>
+      <% } %>
+
+      <a class="logout" href="/logout">Logout</a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-title">Main Menu</div>
+      <a class="nav-item" href="/dashboard">Dashboard</a>
+      <a class="nav-item" href="/alumni">Alumni Directory</a>
+      <a class="nav-item active" href="/events">Events</a>
+      <a class="nav-item" href="/jobs">Jobs &amp; Opportunities</a>
+
+      <div class="sidebar-title">Account</div>
+      <a class="nav-item" href="/profile">My Profile</a>
+      <a class="nav-item" href="/logout">Logout</a>
+    </aside>
+
+    <main class="main">
+      <div class="page-head">
+        <div>
+          <h1>Events</h1>
+          <p class="muted">Upcoming alumni and university events.</p>
+        </div>
+      </div>
+
+      <div class="events-grid">
+        <% events.forEach(e => { %>
+          <div class="panel">
+            <div class="card-title"><%= e.title %></div>
+            <p><strong>Date:</strong> <%= new Date(e.event_date).toLocaleString() %></p>
+            <p><strong>Location:</strong> <%= e.location %></p>
+            <p class="muted"><%= e.description %></p>
+          </div>
+        <% }) %>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

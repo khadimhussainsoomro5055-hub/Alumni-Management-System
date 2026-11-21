@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Dashboard - Alumni Connect</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="app-header">
+    <a class="logo" href="/dashboard">Alumni Connect</a>
+    <div class="header-right">
+      <span class="header-name"><%= sessionUser ? sessionUser.full_name : "" %></span>
+
+      <% if (sessionUser && sessionUser.profile_photo) { %>
+        <img class="header-avatar" src="<%= sessionUser.profile_photo %>">
+      <% } else { %>
+        <div class="header-avatar-fallback">
+          <%= sessionUser ? sessionUser.full_name.charAt(0).toUpperCase() : "A" %>
+        </div>
+      <% } %>
+
+      <a class="logout" href="/logout">Logout</a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-title">Main Menu</div>
+      <a class="nav-item active" href="/dashboard">Dashboard</a>
+      <a class="nav-item" href="/alumni">Alumni Directory</a>
+      <a class="nav-item" href="/events">Events</a>
+      <a class="nav-item" href="/jobs">Jobs &amp; Opportunities</a>
+
+      <div class="sidebar-title">Account</div>
+      <a class="nav-item" href="/profile">My Profile</a>
+      <a class="nav-item" href="/logout">Logout</a>
+    </aside>
+
+    <main class="main">
+      <div class="page-head">
+        <div>
+          <h1>Dashboard</h1>
+          <p class="muted">Welcome back, <%= sessionUser.full_name %>.</p>
+        </div>
+        <a class="btn light" href="/profile">Edit Profile</a>
+      </div>
+
+      <div class="cards">
+        <div class="stat-card">
+          <h3>Total Alumni</h3>
+          <div class="number"><%= stats.total_alumni %></div>
+        </div>
+        <div class="stat-card">
+          <h3>Upcoming Events</h3>
+          <div class="number"><%= stats.total_events %></div>
+        </div>
+        <div class="stat-card">
+          <h3>Job Opportunities</h3>
+          <div class="number"><%= stats.total_jobs %></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Recently Joined Alumni</h2>
+        <div class="table-wrap">
+          <table>
+            <tr>
+              <th>Alumni</th>
+              <th>Department</th>
+              <th>Batch</th>
+            </tr>
+
+            <% recent.forEach(a => { %>
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:12px">
+                    <% if (a.profile_photo) { %>
+                      <img class="avatar" src="<%= a.profile_photo %>">
+                    <% } else { %>
+                      <div class="avatar-fallback">
+                        <%= a.full_name.charAt(0).toUpperCase() %>
+                      </div>
+                    <% } %>
+
+                    <%= a.full_name %>
+                  </div>
+                </td>
+                <td><%= a.department %></td>
+                <td><%= a.graduation_year %></td>
+              </tr>
+            <% }) %>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

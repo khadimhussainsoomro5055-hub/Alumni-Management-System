@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>My Profile - Alumni Connect</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="app-header">
+    <a class="logo" href="/dashboard">Alumni Connect</a>
+    <div class="header-right">
+      <span class="header-name"><%= sessionUser ? sessionUser.full_name : "" %></span>
+
+      <% if (sessionUser && sessionUser.profile_photo) { %>
+        <img class="header-avatar" src="<%= sessionUser.profile_photo %>">
+      <% } else { %>
+        <div class="header-avatar-fallback">
+          <%= sessionUser ? sessionUser.full_name.charAt(0).toUpperCase() : "A" %>
+        </div>
+      <% } %>
+
+      <a class="logout" href="/logout">Logout</a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-title">Main Menu</div>
+      <a class="nav-item" href="/dashboard">Dashboard</a>
+      <a class="nav-item" href="/alumni">Alumni Directory</a>
+      <a class="nav-item" href="/events">Events</a>
+      <a class="nav-item" href="/jobs">Jobs &amp; Opportunities</a>
+
+      <div class="sidebar-title">Account</div>
+      <a class="nav-item active" href="/profile">My Profile</a>
+      <a class="nav-item" href="/logout">Logout</a>
+    </aside>
+
+    <main class="main">
+      <div class="page-head">
+        <div>
+          <h1>My Profile</h1>
+          <p class="muted">Manage your alumni information and profile photo.</p>
+        </div>
+      </div>
+
+      <div class="profile-card">
+        <% if (message) { %>
+          <div class="alert success"><%= message %></div>
+        <% } %>
+
+        <form action="/profile" method="POST" enctype="multipart/form-data">
+          <div class="photo-upload">
+            <% if (profile.profile_photo) { %>
+              <img id="photoPreview" class="preview" src="<%= profile.profile_photo %>">
+            <% } else { %>
+              <div id="photoFallback" class="preview-fallback">
+                <%= profile.full_name.charAt(0).toUpperCase() %>
+              </div>
+              <img id="photoPreview" class="preview" style="display:none">
+            <% } %>
+
+            <div>
+              <label>Profile Photo</label>
+              <input type="file" name="profile_photo" id="photoInput" accept="image/jpeg,image/png,image/webp">
+              <small class="muted">JPG, PNG or WEBP. Maximum 2 MB.</small>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div>
+              <label>Full Name</label>
+              <input name="full_name" value="<%= profile.full_name %>" required>
+            </div>
+            <div>
+              <label>Email</label>
+              <input value="<%= profile.email %>" readonly>
+            </div>
+            <div>
+              <label>Phone</label>
+              <input name="phone" value="<%= profile.phone || '' %>">
+            </div>
+            <div>
+              <label>Gender</label>
+              <select name="gender">
+                <option value="">Select</option>
+                <option <%= profile.gender === "Male" ? "selected" : "" %>>Male</option>
+                <option <%= profile.gender === "Female" ? "selected" : "" %>>Female</option>
+              </select>
+            </div>
+            <div>
+              <label>Date of Birth</label>
+              <input type="date" name="date_of_birth"
+                value="<%= profile.date_of_birth ? new Date(profile.date_of_birth).toISOString().slice(0, 10) : '' %>">
+            </div>
+            <div>
+              <label>Student ID</label>
+              <input name="student_id" value="<%= profile.student_id || '' %>">
+            </div>
+            <div>
+              <label>Degree</label>
+              <input name="degree" value="<%= profile.degree || '' %>">
+            </div>
+            <div>
+              <label>Department</label>
+              <input name="department" value="<%= profile.department %>" required>
+            </div>
+            <div>
+              <label>Graduation Year</label>
+              <input type="number" name="graduation_year" value="<%= profile.graduation_year %>" required>
+            </div>
+            <div>
+              <label>Current Job</label>
+              <input name="current_job" value="<%= profile.current_job || '' %>">
+            </div>
+            <div>
+              <label>Company</label>
+              <input name="company" value="<%= profile.company || '' %>">
+            </div>
+            <div>
+              <label>City</label>
+              <input name="city" value="<%= profile.city || '' %>">
+            </div>
+            <div>
+              <label>Country</label>
+              <input name="country" value="<%= profile.country || 'Pakistan' %>">
+            </div>
+            <div class="full">
+              <label>Complete Address</label>
+              <textarea name="address" rows="4"><%= profile.address || '' %></textarea>
+            </div>
+          </div>
+
+          <br>
+          <button class="btn" type="submit">Save Changes</button>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    document.getElementById("photoInput").addEventListener("change", function () {
+      const f = this.files[0];
+      if (!f) return;
+      if (f.size > 2097152) {
+        alert("Image must be 2 MB or smaller.");
+        this.value = "";
+        return;
+      }
+      const p = document.getElementById("photoPreview");
+      p.src = URL.createObjectURL(f);
+      p.style.display = "block";
+      const fb = document.getElementById("photoFallback");
+      if (fb) fb.style.display = "none";
+    });
+  </script>
+</body>
+</html>
