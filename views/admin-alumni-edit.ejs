@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Edit Alumni</title><link rel="stylesheet" href="/style.css"></head>
+<body><header class="app-header"><a class="logo" href="/admin">Alumni Connect · Admin</a><form action="/logout" method="POST"><button class="logout">Logout</button></form></header>
+<main class="main"><div class="page-head"><div><h1>Edit Alumni</h1><p class="muted">Update the selected alumni account.</p></div><a class="btn light" href="/admin">Back to Admin</a></div>
+<div class="profile-card"><form action="/admin/alumni/<%= person.id %>" method="POST"><div class="form-grid">
+<div><label>Full Name</label><input name="full_name" value="<%= person.full_name %>" required></div>
+<div><label>Email (read only)</label><input value="<%= person.email %>" readonly></div>
+<div><label>Phone</label><input name="phone" value="<%= person.phone || '' %>"></div>
+<div><label>Gender</label><select name="gender"><option value="">Select</option><option value="Male" <%= person.gender === "Male" ? "selected" : "" %>>Male</option><option value="Female" <%= person.gender === "Female" ? "selected" : "" %>>Female</option></select></div>
+<div><label>Date of Birth</label><input type="date" name="date_of_birth" value="<%= person.date_of_birth ? new Date(person.date_of_birth).toISOString().slice(0,10) : '' %>"></div>
+<div><label>Student ID</label><input name="student_id" value="<%= person.student_id || '' %>"></div>
+<div><label>Degree</label><input name="degree" value="<%= person.degree || '' %>"></div>
+<div><label>Department</label><input name="department" value="<%= person.department %>" required></div>
+<div><label>Graduation Year</label><input type="number" name="graduation_year" value="<%= person.graduation_year %>" required></div>
+<div><label>Current Job</label><input name="current_job" value="<%= person.current_job || '' %>"></div>
+<div><label>Company</label><input name="company" value="<%= person.company || '' %>"></div>
+<div><label>City</label><input name="city" value="<%= person.city || '' %>"></div>
+<div><label>Country</label><input name="country" value="<%= person.country || 'Pakistan' %>"></div>
+<div><label>Account Role</label><select name="role"><option value="alumni" <%= person.role !== "admin" ? "selected" : "" %>>Alumni</option><option value="admin" <%= person.role === "admin" ? "selected" : "" %>>Administrator</option></select></div>
+<div class="full"><label>Address</label><textarea name="address" rows="3"><%= person.address || '' %></textarea></div>
+</div><br><button class="btn" type="submit">Save Changes</button></form></div></main></body></html>
