@@ -19,9 +19,6 @@ const bcrypt = require("bcryptjs");
 const session = require("express-session");
 const multer = require("multer");
 const crypto = require("crypto");
-const helmet = require("helmet");
-const rateLimit = require("express-rate-limit");
-const MySQLStoreFactory = require("express-mysql-session");
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -39,7 +36,13 @@ const db = mysql.createPool({
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.disable("x-powered-by");
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use((req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  next();
+});
 app.use(express.urlencoded({ extended: true, limit: "30kb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -50,8 +53,23 @@ if (process.env.NODE_ENV !== "production" && (!process.env.SESSION_SECRET || pro
   console.warn("Set SESSION_SECRET in .env to a random value of at least 32 characters.");
 }
 if (process.env.NODE_ENV === "production") app.set("trust proxy", 1);
-const MySQLStore = MySQLStoreFactory(session);
-const sessionStore = new MySQLStore({ clearExpired: true, checkExpirationInterval: 15 * 60 * 1000, expiration: 8 * 60 * 60 * 1000 }, db);
+class MySQLSessionStore extends session.Store {
+  get(sid, callback) {
+    db.execute("SELECT data FROM app_sessions WHERE session_id=? AND expires_at > NOW()", [sid])
+      .then(([rows]) => callback(null, rows.length ? JSON.parse(rows[0].data) : null))
+      .catch(callback);
+  }
+  set(sid, value, callback = () => {}) {
+    const expires = value.cookie && value.cookie.expires ? new Date(value.cookie.expires) : new Date(Date.now() + 8 * 60 * 60 * 1000);
+    db.execute("INSERT INTO app_sessions(session_id,data,expires_at) VALUES(?,?,?) ON DUPLICATE KEY UPDATE data=VALUES(data), expires_at=VALUES(expires_at)",
+      [sid, JSON.stringify(value), expires]).then(() => callback(null)).catch(callback);
+  }
+  destroy(sid, callback = () => {}) {
+    db.execute("DELETE FROM app_sessions WHERE session_id=?", [sid]).then(() => callback(null)).catch(callback);
+  }
+  touch(sid, value, callback = () => {}) { this.set(sid, value, callback); }
+}
+const sessionStore = new MySQLSessionStore();
 app.use(session({
   name: "alumni.sid",
   secret: process.env.SESSION_SECRET || "development-only-change-this-secret-please",
@@ -80,7 +98,19 @@ app.use((req, res, next) => {
   if (req.method === "POST" && req.path !== "/profile") return verifyCsrf(req, res, next);
   next();
 });
-const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: "draft-7", legacyHeaders: false, message: "Too many attempts. Please try again in 15 minutes." });
+const loginAttempts = new Map();
+function authLimiter(req, res, next) {
+  const key = req.ip + ":" + (req.path === "/signin" ? String(req.body.email || "").toLowerCase() : "signup");
+  const now = Date.now();
+  const entry = loginAttempts.get(key);
+  if (!entry || now - entry.startedAt > 15 * 60 * 1000) {
+    loginAttempts.set(key, { startedAt: now, count: 1 });
+    return next();
+  }
+  if (entry.count >= 10) return res.status(429).send("Too many attempts. Please try again in 15 minutes.");
+  entry.count += 1;
+  next();
+}
 
 const uploadDir = path.join(__dirname, "public", "uploads", "profiles");
 fs.mkdirSync(uploadDir, { recursive: true });
@@ -403,6 +433,8 @@ app.use((req, res) => res.status(404).send("Page not found."));
 async function start() {
   try {
     await db.query("SELECT 1");
+    await db.query("CREATE TABLE IF NOT EXISTS app_sessions (session_id VARCHAR(128) NOT NULL PRIMARY KEY, data MEDIUMTEXT NOT NULL, expires_at DATETIME NOT NULL, INDEX idx_app_sessions_expiry (expires_at))");
+    await db.query("DELETE FROM app_sessions WHERE expires_at <= NOW()");
     console.log("Connected to MySQL.");
     app.listen(PORT, () => console.log("Server listening on http://localhost:" + PORT));
   } catch (err) {
