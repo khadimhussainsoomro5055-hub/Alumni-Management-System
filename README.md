@@ -25,13 +25,5 @@ Express, EJS and MySQL alumni portal.
 
 Never allow public signup to select an administrator role. Do not delete your own current administrator account.
 
-## Security and deployment
-- Never commit `.env` or real credentials.
-- A database password was previously committed publicly. Rotate that password in MySQL; removing it from the current source does not erase it from Git history.
-- Uploaded profile images have a 2 MB limit, MIME filtering and file-signature checks.
-- Session cookies use HttpOnly and SameSite settings. Use HTTPS and set `NODE_ENV=production` in production.
-- The default Express MemoryStore is suitable only for local development. Configure a persistent session store before deploying multiple instances or production traffic.
-- CSRF tokens are required on all POST forms. Add login rate limiting before exposing the app to the public internet.
-
 ## Notes
 The application requires the latest `database.sql` schema. If you see a missing-column or missing-table error, import the schema and check that the `alumni`, `events` and `jobs` tables exist.
