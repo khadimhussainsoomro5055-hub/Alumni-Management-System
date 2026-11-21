@@ -20,7 +20,8 @@
         </div>
       <% } %>
 
-      <form action="/logout" method="POST" style="display:inline"><button class="logout" type="submit">Logout</button></form>
+      <form action="/logout" method="POST" style="display:inline">
+<input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="logout" type="submit">Logout</button></form>
     </div>
   </header>
 
@@ -35,7 +36,8 @@
 
       <div class="sidebar-title">Account</div>
       <a class="nav-item" href="/profile">My Profile</a>
-      <form action="/logout" method="POST"><button class="nav-item" type="submit">Logout</button></form>
+      <form action="/logout" method="POST">
+<input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="nav-item" type="submit">Logout</button></form>
     </aside>
 
     <main class="main">
