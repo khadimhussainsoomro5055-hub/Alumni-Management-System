@@ -191,7 +191,7 @@ app.post("/contact", async (req, res, next) => {
     const subject = String(req.body.subject || "").trim().slice(0, 160);
     const message = String(req.body.message || "").trim().slice(0, 5000);
     const values = { name, email, subject, message };
-    if (!name || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) || !subject || !message) {
+    if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !subject || !message) {
       return res.status(400).render("contact", { title: "Contact Us", error: "Please provide a valid name, email, subject and message.", message: null, values });
     }
     try {
@@ -200,7 +200,7 @@ app.post("/contact", async (req, res, next) => {
         replyTo: email,
         subject: "[Alumni Connect Contact] " + subject,
         text: "From: " + name + " <" + email + ">\\n\\n" + message,
-        html: "<h3>New contact message</h3><p><strong>Name:</strong> " + escapeHtml(name) + "</p><p><strong>Email:</strong> " + escapeHtml(email) + "</p><p><strong>Subject:</strong> " + escapeHtml(subject) + "</p><p>" + escapeHtml(message).replace(/\\n/g, "<br>") + "</p>"
+        html: "<h3>New contact message</h3><p><strong>Name:</strong> " + escapeHtml(name) + "</p><p><strong>Email:</strong> " + escapeHtml(email) + "</p><p><strong>Subject:</strong> " + escapeHtml(subject) + "</p><p>" + escapeHtml(message).replace(/\n/g, "<br>") + "</p>"
       });
     } catch (mailError) {
       console.error("Contact email could not be sent:", mailError.message);
