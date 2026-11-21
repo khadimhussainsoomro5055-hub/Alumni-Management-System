@@ -3,7 +3,7 @@
 <body><header class="app-header"><a class="logo" href="/admin">Alumni Connect · Admin</a><form action="/logout" method="POST">
 <input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="logout">Logout</button></form></header>
 <main class="main"><div class="page-head"><div><h1>Edit Alumni</h1><p class="muted">Update the selected alumni account.</p></div><a class="btn light" href="/admin">Back to Admin</a></div>
-<div class="profile-card"><form action="/admin/alumni/<%= person.id %>" method="POST"><div class="form-grid">
+<div class="profile-card"><form action="/admin/alumni/<%= person.id %>" method="POST"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><div class="form-grid">
 <div><label>Full Name</label><input name="full_name" value="<%= person.full_name %>" required></div>
 <div><label>Email (read only)</label><input value="<%= person.email %>" readonly></div>
 <div><label>Phone</label><input name="phone" value="<%= person.phone || '' %>"></div>
