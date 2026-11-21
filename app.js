@@ -1,6 +1,6 @@
 const envFile = require("path").join(__dirname, ".env");
-if (fs.existsSync(envFile)) {
-  for (const line of fs.readFileSync(envFile, "utf8").split("\n")) {
+if (require("fs").existsSync(envFile)) {
+  for (const line of require("fs").readFileSync(envFile, "utf8").split("\n")) {
     const index = line.indexOf("=");
     if (index > 0) {
       const key = line.slice(0, index).trim();
