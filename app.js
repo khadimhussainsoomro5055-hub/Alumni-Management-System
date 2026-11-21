@@ -18,6 +18,7 @@ const mysql = require("mysql2/promise");
 const bcrypt = require("bcryptjs");
 const session = require("express-session");
 const multer = require("multer");
+const crypto = require("crypto");
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -38,9 +39,13 @@ app.disable("x-powered-by");
 app.use(express.urlencoded({ extended: true, limit: "30kb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
-if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32) {
+if (process.env.NODE_ENV === "production" && (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32)) {
+  throw new Error("Production requires SESSION_SECRET with at least 32 characters.");
+}
+if (process.env.NODE_ENV !== "production" && (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32)) {
   console.warn("Set SESSION_SECRET in .env to a random value of at least 32 characters.");
 }
+if (process.env.NODE_ENV === "production") app.set("trust proxy", 1);
 app.use(session({
   name: "alumni.sid",
   secret: process.env.SESSION_SECRET || "development-only-change-this-secret-please",
@@ -53,6 +58,19 @@ app.use(session({
     maxAge: 8 * 60 * 60 * 1000
   }
 }));
+
+// Session-bound CSRF token for every state-changing form submission.
+app.use((req, res, next) => {
+  if (!req.session.csrfToken) req.session.csrfToken = crypto.randomBytes(32).toString("hex");
+  res.locals.csrfToken = req.session.csrfToken;
+  if (req.method === "POST") {
+    const supplied = req.body && req.body._csrf;
+    if (typeof supplied !== "string" || supplied !== req.session.csrfToken) {
+      return res.status(403).send("Invalid or missing security token. Refresh the page and try again.");
+    }
+  }
+  next();
+});
 
 const uploadDir = path.join(__dirname, "public", "uploads", "profiles");
 fs.mkdirSync(uploadDir, { recursive: true });
