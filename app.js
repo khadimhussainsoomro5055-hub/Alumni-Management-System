@@ -251,7 +251,7 @@ app.get("/profile", auth, async (req, res, next) => {
   try {
     const [rows] = await db.execute("SELECT * FROM alumni WHERE id=?", [req.session.user.id]);
     if (!rows.length) return res.status(404).send("Profile not found.");
-    res.render("profile", { title: "My Profile", profile: rows[0], message: req.query.updated ? "Profile updated successfully." : null });
+    res.render("profile", { title: "My Profile", profile: rows[0], message: req.query.passwordChanged ? "Password changed successfully." : (req.query.updated ? "Profile updated successfully." : null) });
   } catch (err) { next(err); }
 });
 app.post("/profile", auth, upload.single("profile_photo"), verifyCsrf, async (req, res, next) => {
