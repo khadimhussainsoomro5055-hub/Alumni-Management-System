@@ -1,6 +1,4 @@
-const fs = require("fs");
-const path = require("path");
-const envFile = path.join(__dirname, ".env");
+const envFile = require("path").join(__dirname, ".env");
 if (fs.existsSync(envFile)) {
   for (const line of fs.readFileSync(envFile, "utf8").split("\n")) {
     const index = line.indexOf("=");
