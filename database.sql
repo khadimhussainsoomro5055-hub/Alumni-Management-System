@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS alumni (
   address TEXT,
   password VARCHAR(255) NOT NULL,
   profile_photo VARCHAR(255),
+  role ENUM('alumni', 'admin') NOT NULL DEFAULT 'alumni',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -72,3 +73,13 @@ WHERE NOT EXISTS (SELECT 1 FROM jobs WHERE title='Junior Software Engineer');
 INSERT INTO jobs(title,company,location,description)
 SELECT 'Web Developer','Digital Labs','Karachi','Web development position working with modern web technologies.'
 WHERE NOT EXISTS (SELECT 1 FROM jobs WHERE title='Web Developer');
+
+-- Add role to existing installations if it is missing.
+SET @role_exists = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'alumni' AND COLUMN_NAME = 'role');
+SET @role_sql = IF(@role_exists = 0, "ALTER TABLE alumni ADD COLUMN role ENUM('alumni','admin') NOT NULL DEFAULT 'alumni'", 'SELECT 1');
+PREPARE role_stmt FROM @role_sql;
+EXECUTE role_stmt;
+DEALLOCATE PREPARE role_stmt;
+
+-- Promote an existing account after setup:
+-- UPDATE alumni SET role='admin' WHERE email='your-admin-email@example.com';
