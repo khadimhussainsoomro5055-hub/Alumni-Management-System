@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const path = require("path");
 const mysql = require("mysql2");
@@ -5,16 +7,17 @@ const bcrypt = require("bcryptjs");
 const session = require("express-session");
 const multer = require("multer");
 const fs = require("fs");
+const fileType = require("file-type");
 
 const app = express();
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 const db = mysql.createConnection({
-  host: "localhost",
-  port: 3306,
-  user: "root",
-  password: "Soomro114",
-  database: "alumni_system"
+  host: process.env.DB_HOST || "localhost",
+  port: Number(process.env.DB_PORT) || 3306,
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "",
+  database: process.env.DB_NAME || "alumni_system"
 });
 
 db.connect(err => {
@@ -26,10 +29,20 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
+if (!process.env.SESSION_SECRET) {
+  console.warn("WARNING: SESSION_SECRET is not set. Add it to your .env file.");
+}
 app.use(session({
-  secret: "alumni-connect-secret",
+  name: "alumni.sid",
+  secret: process.env.SESSION_SECRET || "development-only-change-this-secret",
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 1000 * 60 * 60 * 8
+  }
 }));
 
 const uploadDir = path.join(__dirname, "public", "uploads", "profiles");
@@ -100,15 +113,30 @@ app.post("/signin",async(req,res)=>{
     const user=rows[0];
     if(!(await bcrypt.compare(password,user.password)))
       return res.render("signin",{title:"Sign In",error:"Invalid email or password.",message:null});
-    req.session.user={id:user.id,full_name:user.full_name,email:user.email,profile_photo:user.profile_photo};
-    res.redirect("/dashboard");
+    req.session.regenerate(err => {
+      if (err) {
+        console.error("Session regeneration failed:", err);
+        return res.status(500).render("signin",{title:"Sign In",error:"Unable to start a secure session.",message:null});
+      }
+      req.session.user={
+        id:user.id,
+        full_name:user.full_name,
+        email:user.email,
+        profile_photo:user.profile_photo,
+        role:user.role || "alumni"
+      };
+      req.session.save(saveErr => {
+        if (saveErr) return res.status(500).render("signin",{title:"Sign In",error:"Unable to save session.",message:null});
+        res.redirect("/dashboard");
+      });
+    });
   }catch(e){
     console.error(e);
     res.status(500).render("signin",{title:"Sign In",error:"Database error.",message:null});
   }
 });
 
-app.get("/logout",(req,res)=>req.session.destroy(()=>res.redirect("/signin")));
+app.post("/logout",auth,(req,res)=>req.session.destroy(()=>res.redirect("/signin")));
 
 app.get("/dashboard",auth,async(req,res)=>{
   try{
@@ -151,6 +179,13 @@ app.get("/profile",auth,async(req,res)=>{
 app.post("/profile",auth,upload.single("profile_photo"),async(req,res)=>{
   const p=req.body;
   try{
+    if (req.file) {
+      const detected = await fileType.fromFile(req.file.path);
+      if (!detected || !["image/jpeg", "image/png", "image/webp"].includes(detected.mime)) {
+        fs.unlinkSync(req.file.path);
+        return res.status(400).send("Uploaded file content is not a supported image.");
+      }
+    }
     const [oldRows]=await db.promise().execute("SELECT profile_photo FROM alumni WHERE id=?",[req.session.user.id]);
     let photo=oldRows[0]?.profile_photo || null;
     if(req.file){

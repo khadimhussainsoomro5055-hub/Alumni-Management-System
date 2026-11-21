@@ -20,7 +20,7 @@
         </div>
       <% } %>
 
-      <a class="logout" href="/logout">Logout</a>
+      <form action="/logout" method="POST" style="display:inline"><button class="logout" type="submit">Logout</button></form>
     </div>
   </header>
 
@@ -34,7 +34,7 @@
 
       <div class="sidebar-title">Account</div>
       <a class="nav-item" href="/profile">My Profile</a>
-      <a class="nav-item" href="/logout">Logout</a>
+      <form action="/logout" method="POST"><button class="nav-item" type="submit">Logout</button></form>
     </aside>
 
     <main class="main">
