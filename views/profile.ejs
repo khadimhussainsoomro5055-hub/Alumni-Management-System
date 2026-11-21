@@ -44,12 +44,12 @@
       <div class="page-head">
         <div>
           <h1>My Profile</h1>
-          <p class="muted">Manage your alumni information and profile photo.</p>
+          <p class="muted">Manage your alumni information and profile photo.</p><a class="btn light" href="/change-password">Change Password</a>
         </div>
       </div>
 
       <div class="profile-card">
-        <% if (message) { %>
+        <% if (typeof message !== "undefined" && message) { %>
           <div class="alert success"><%= message %></div>
         <% } %>
 
