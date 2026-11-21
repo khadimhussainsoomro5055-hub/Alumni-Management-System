@@ -19,6 +19,9 @@ const bcrypt = require("bcryptjs");
 const session = require("express-session");
 const multer = require("multer");
 const crypto = require("crypto");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
+const MySQLStoreFactory = require("express-mysql-session");
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -36,6 +39,7 @@ const db = mysql.createPool({
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.disable("x-powered-by");
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.urlencoded({ extended: true, limit: "30kb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -46,9 +50,12 @@ if (process.env.NODE_ENV !== "production" && (!process.env.SESSION_SECRET || pro
   console.warn("Set SESSION_SECRET in .env to a random value of at least 32 characters.");
 }
 if (process.env.NODE_ENV === "production") app.set("trust proxy", 1);
+const MySQLStore = MySQLStoreFactory(session);
+const sessionStore = new MySQLStore({ clearExpired: true, checkExpirationInterval: 15 * 60 * 1000, expiration: 8 * 60 * 60 * 1000 }, db);
 app.use(session({
   name: "alumni.sid",
   secret: process.env.SESSION_SECRET || "development-only-change-this-secret-please",
+  store: sessionStore,
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -60,17 +67,20 @@ app.use(session({
 }));
 
 // Session-bound CSRF token for every state-changing form submission.
+function verifyCsrf(req, res, next) {
+  const supplied = req.body && req.body._csrf;
+  if (typeof supplied !== "string" || supplied !== req.session.csrfToken) {
+    return res.status(403).send("Invalid or missing security token. Refresh the page and try again.");
+  }
+  next();
+}
 app.use((req, res, next) => {
   if (!req.session.csrfToken) req.session.csrfToken = crypto.randomBytes(32).toString("hex");
   res.locals.csrfToken = req.session.csrfToken;
-  if (req.method === "POST") {
-    const supplied = req.body && req.body._csrf;
-    if (typeof supplied !== "string" || supplied !== req.session.csrfToken) {
-      return res.status(403).send("Invalid or missing security token. Refresh the page and try again.");
-    }
-  }
+  if (req.method === "POST" && req.path !== "/profile") return verifyCsrf(req, res, next);
   next();
 });
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: "draft-7", legacyHeaders: false, message: "Too many attempts. Please try again in 15 minutes." });
 
 const uploadDir = path.join(__dirname, "public", "uploads", "profiles");
 fs.mkdirSync(uploadDir, { recursive: true });
@@ -126,7 +136,7 @@ app.use((req, res, next) => {
 
 app.get("/", (req, res) => res.redirect(req.session.user ? (req.session.user.role === "admin" ? "/admin" : "/dashboard") : "/signin"));
 app.get("/signup", (req, res) => res.render("signup", { title: "Create Account", error: null }));
-app.post("/signup", async (req, res, next) => {
+app.post("/signup", authLimiter, async (req, res, next) => {
   try {
     const p = req.body;
     if (!p.full_name?.trim() || !p.email?.trim() || !p.department?.trim() || !validYear(p.graduation_year) || !p.password) {
@@ -147,7 +157,7 @@ app.get("/signin", (req, res) => {
   if (req.session.user) return res.redirect(req.session.user.role === "admin" ? "/admin" : "/dashboard");
   res.render("signin", { title: "Sign In", error: null, message: req.query.registered ? "Account created successfully. Please sign in." : null });
 });
-app.post("/signin", async (req, res, next) => {
+app.post("/signin", authLimiter, async (req, res, next) => {
   try {
     const email = (req.body.email || "").trim().toLowerCase();
     const password = req.body.password || "";
@@ -183,17 +193,27 @@ app.get("/dashboard", auth, async (req, res, next) => {
 });
 app.get("/alumni", auth, async (req, res, next) => {
   try {
-    const search = (req.query.search || "").trim();
+    const search = String(req.query.search || "").trim().slice(0, 100);
+    const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
+    const pageSize = 12;
+    const offset = (page - 1) * pageSize;
     let sql = "SELECT id,full_name,email,phone,department,graduation_year,current_job,company,city,country,profile_photo FROM alumni";
+    let countSql = "SELECT COUNT(*) AS total FROM alumni";
     const params = [];
+    const countParams = [];
     if (search) {
-      sql += " WHERE full_name LIKE ? OR email LIKE ? OR department LIKE ? OR current_job LIKE ? OR city LIKE ?";
+      const where = " WHERE full_name LIKE ? OR email LIKE ? OR department LIKE ? OR current_job LIKE ? OR city LIKE ?";
+      sql += where;
+      countSql += where;
       const term = "%" + search + "%";
       params.push(term, term, term, term, term);
+      countParams.push(term, term, term, term, term);
     }
-    sql += " ORDER BY full_name";
+    sql += " ORDER BY full_name LIMIT ? OFFSET ?";
+    params.push(pageSize, offset);
+    const [[count]] = await db.execute(countSql, countParams);
     const [alumni] = await db.execute(sql, params);
-    res.render("alumni", { title: "Alumni Directory", alumni, search });
+    res.render("alumni", { title: "Alumni Directory", alumni, search, page, totalPages: Math.max(1, Math.ceil(count.total / pageSize)) });
   } catch (err) { next(err); }
 });
 
@@ -204,7 +224,7 @@ app.get("/profile", auth, async (req, res, next) => {
     res.render("profile", { title: "My Profile", profile: rows[0], message: req.query.updated ? "Profile updated successfully." : null });
   } catch (err) { next(err); }
 });
-app.post("/profile", auth, upload.single("profile_photo"), async (req, res, next) => {
+app.post("/profile", auth, upload.single("profile_photo"), verifyCsrf, async (req, res, next) => {
   const p = req.body;
   let newPhoto = req.file ? "/uploads/profiles/" + req.file.filename : null;
   try {
@@ -246,6 +266,30 @@ app.get("/jobs", auth, async (req, res, next) => {
   catch (err) { next(err); }
 });
 
+// Authenticated password change.
+app.get("/change-password", auth, (req, res) => res.render("change-password", { title: "Change Password", error: null }));
+app.post("/change-password", auth, async (req, res, next) => {
+  try {
+    const { current_password, new_password, confirm_password } = req.body;
+    if (!current_password || !new_password || new_password.length < 8 || new_password !== confirm_password) {
+      return res.status(400).render("change-password", { title: "Change Password", error: "Enter your current password and matching new passwords (at least 8 characters)." });
+    }
+    const [rows] = await db.execute("SELECT password FROM alumni WHERE id=?", [req.session.user.id]);
+    if (!rows.length || !(await bcrypt.compare(current_password, rows[0].password))) {
+      return res.status(400).render("change-password", { title: "Change Password", error: "Current password is incorrect." });
+    }
+    const hash = await bcrypt.hash(new_password, 12);
+    await db.execute("UPDATE alumni SET password=? WHERE id=?", [hash, req.session.user.id]);
+    const user = req.session.user;
+    req.session.regenerate(err => {
+      if (err) return next(err);
+      req.session.user = user;
+      req.session.csrfToken = crypto.randomBytes(32).toString("hex");
+      req.session.save(saveErr => saveErr ? next(saveErr) : res.redirect("/profile?passwordChanged=1"));
+    });
+  } catch (err) { next(err); }
+});
+
 // Admin dashboard: management links for all three data types.
 app.get("/admin", adminOnly, async (req, res, next) => {
   try {
@@ -268,7 +312,7 @@ app.get("/admin/alumni/:id/edit", adminOnly, async (req, res, next) => {
 app.post("/admin/alumni/:id", adminOnly, async (req, res, next) => {
   try {
     const p = req.body;
-    if (!p.full_name?.trim() || !p.department?.trim() || !validYear(p.graduation_year)) return res.status(400).send("Name, department and valid graduation year are required.");
+    if (!p.full_name?.trim() || p.full_name.trim().length > 150 || !p.department?.trim() || p.department.trim().length > 150 || !validYear(p.graduation_year)) return res.status(400).send("Enter a name and department (maximum 150 characters) and a valid graduation year.");
     await db.execute("UPDATE alumni SET full_name=?,phone=?,gender=?,date_of_birth=?,student_id=?,degree=?,department=?,graduation_year=?,current_job=?,company=?,city=?,country=?,address=?,role=? WHERE id=?",
       [p.full_name.trim(), p.phone || null, p.gender || null, p.date_of_birth || null, p.student_id || null, p.degree || null,
        p.department.trim(), p.graduation_year, p.current_job || null, p.company || null, p.city || null, p.country || "Pakistan",
@@ -366,4 +410,5 @@ async function start() {
     process.exit(1);
   }
 }
-start();
+if (require.main === module) start();
+module.exports = { app, db, start };
