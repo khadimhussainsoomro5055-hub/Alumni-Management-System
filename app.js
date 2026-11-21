@@ -1,4 +1,16 @@
-require("dotenv").config();
+const fs = require("fs");
+const path = require("path");
+const envFile = path.join(__dirname, ".env");
+if (fs.existsSync(envFile)) {
+  for (const line of fs.readFileSync(envFile, "utf8").split("\n")) {
+    const index = line.indexOf("=");
+    if (index > 0) {
+      const key = line.slice(0, index).trim();
+      const value = line.slice(index + 1).trim().replace(/^["\x27]|["\x27]$/g, "");
+      if (key && process.env[key] === undefined) process.env[key] = value;
+    }
+  }
+}
 
 const express = require("express");
 const path = require("path");
@@ -7,7 +19,7 @@ const bcrypt = require("bcryptjs");
 const session = require("express-session");
 const multer = require("multer");
 const fs = require("fs");
-const fileType = require("file-type");
+
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -180,9 +192,15 @@ app.post("/profile",auth,upload.single("profile_photo"),async(req,res)=>{
   const p=req.body;
   try{
     if (req.file) {
-      const detected = await fileType.fromFile(req.file.path);
-      if (!detected || !["image/jpeg", "image/png", "image/webp"].includes(detected.mime)) {
-        fs.unlinkSync(req.file.path);
+      const handle = await fs.promises.open(req.file.path, "r");
+      const header = Buffer.alloc(12);
+      await handle.read(header, 0, 12, 0);
+      await handle.close();
+      const isJpeg = header[0] === 255 && header[1] === 216 && header[2] === 255;
+      const isPng = header.subarray(0, 8).equals(Buffer.from([137,80,78,71,13,10,26,10]));
+      const isWebp = header.toString("ascii", 0, 4) === "RIFF" && header.toString("ascii", 8, 12) === "WEBP";
+      if (!isJpeg && !isPng && !isWebp) {
+        await fs.promises.unlink(req.file.path);
         return res.status(400).send("Uploaded file content is not a supported image.");
       }
     }
