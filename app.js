@@ -343,6 +343,12 @@ app.post("/admin/alumni/:id", adminOnly, async (req, res, next) => {
   try {
     const p = req.body;
     if (!p.full_name?.trim() || p.full_name.trim().length > 150 || !p.department?.trim() || p.department.trim().length > 150 || !validYear(p.graduation_year)) return res.status(400).send("Enter a name and department (maximum 150 characters) and a valid graduation year.");
+    const [[adminCount]] = await db.execute("SELECT COUNT(*) AS total FROM alumni WHERE role='admin'");
+    const [targetRows] = await db.execute("SELECT role FROM alumni WHERE id=?", [req.params.id]);
+    if (!targetRows.length) return res.status(404).send("Alumni record not found.");
+    if (targetRows[0].role === "admin" && p.role !== "admin" && adminCount.total <= 1) {
+      return res.status(400).send("The last administrator cannot be demoted.");
+    }
     await db.execute("UPDATE alumni SET full_name=?,phone=?,gender=?,date_of_birth=?,student_id=?,degree=?,department=?,graduation_year=?,current_job=?,company=?,city=?,country=?,address=?,role=? WHERE id=?",
       [p.full_name.trim(), p.phone || null, p.gender || null, p.date_of_birth || null, p.student_id || null, p.degree || null,
        p.department.trim(), p.graduation_year, p.current_job || null, p.company || null, p.city || null, p.country || "Pakistan",
