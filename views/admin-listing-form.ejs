@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><%= title %></title><link rel="stylesheet" href="/style.css"></head>
-<body><header class="app-header"><a class="logo" href="/admin">Alumni Connect · Admin</a><form action="/logout" method="POST"><button class="logout">Logout</button></form></header>
+<body><header class="app-header"><a class="logo" href="/admin">Alumni Connect · Admin</a><form action="/logout" method="POST">
+<input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="logout">Logout</button></form></header>
 <main class="main"><div class="page-head"><div><h1><%= title %></h1><p class="muted">Only administrators can manage listings.</p></div><a class="btn light" href="/admin">Back to Admin</a></div>
-<div class="profile-card"><form method="POST" action="<%= kind === 'event' ? (item ? '/admin/events/' + item.id : '/admin/events') : (item ? '/admin/jobs/' + item.id : '/admin/jobs') %>">
+<div class="profile-card"><form method="POST" action="<%= kind === 'event' ? (item ? '/admin/events/' + item.id : '/admin/events') : (item ? '/admin/jobs/' + item.id : '/admin/jobs') %>
+<input type="hidden" name="_csrf" value="<%= csrfToken %>">">
 <div class="form-grid"><div class="full"><label>Title</label><input name="title" value="<%= item ? item.title : '' %>" required></div>
 <% if (kind === "event") { %>
 <div><label>Date and Time</label><input type="datetime-local" name="event_date" value="<%= item && item.event_date ? new Date(item.event_date).toISOString().slice(0,16) : '' %>" required></div>
