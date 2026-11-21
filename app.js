@@ -19,6 +19,20 @@ const bcrypt = require("bcryptjs");
 const session = require("express-session");
 const multer = require("multer");
 const crypto = require("crypto");
+const nodemailer = require("nodemailer");
+
+const smtpConfigured = Boolean(process.env.SMTP_HOST && process.env.SMTP_PORT && process.env.SMTP_USER && process.env.SMTP_PASS && process.env.SMTP_FROM);
+const mailer = smtpConfigured ? nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT),
+  secure: String(process.env.SMTP_SECURE || "false").toLowerCase() === "true",
+  auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
+}) : null;
+
+async function sendMail(message) {
+  if (!mailer) throw new Error("SMTP is not configured. Set SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS and SMTP_FROM in .env.");
+  return mailer.sendMail({ from: process.env.SMTP_FROM, ...message });
+}
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -135,6 +149,9 @@ function adminOnly(req, res, next) {
   if (req.session.user.role !== "admin") return res.status(403).send("Administrator access required.");
   next();
 }
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
+}
 function validYear(value) {
   const year = Number(value);
   return Number.isInteger(year) && year >= 1950 && year <= new Date().getFullYear() + 10;
@@ -165,6 +182,34 @@ app.use((req, res, next) => {
 });
 
 app.get("/", (req, res) => res.redirect(req.session.user ? (req.session.user.role === "admin" ? "/admin" : "/dashboard") : "/signin"));
+// Public contact form. The SMTP recipient is the configured SMTP_FROM address.
+app.get("/contact", (req, res) => res.render("contact", { title: "Contact Us", error: null, message: null, values: {} }));
+app.post("/contact", async (req, res, next) => {
+  try {
+    const name = String(req.body.name || "").trim().slice(0, 120);
+    const email = String(req.body.email || "").trim().toLowerCase().slice(0, 150);
+    const subject = String(req.body.subject || "").trim().slice(0, 160);
+    const message = String(req.body.message || "").trim().slice(0, 5000);
+    const values = { name, email, subject, message };
+    if (!name || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) || !subject || !message) {
+      return res.status(400).render("contact", { title: "Contact Us", error: "Please provide a valid name, email, subject and message.", message: null, values });
+    }
+    try {
+      await sendMail({
+        to: process.env.SMTP_FROM,
+        replyTo: email,
+        subject: "[Alumni Connect Contact] " + subject,
+        text: "From: " + name + " <" + email + ">\\n\\n" + message,
+        html: "<h3>New contact message</h3><p><strong>Name:</strong> " + escapeHtml(name) + "</p><p><strong>Email:</strong> " + escapeHtml(email) + "</p><p><strong>Subject:</strong> " + escapeHtml(subject) + "</p><p>" + escapeHtml(message).replace(/\\n/g, "<br>") + "</p>"
+      });
+    } catch (mailError) {
+      console.error("Contact email could not be sent:", mailError.message);
+      return res.status(503).render("contact", { title: "Contact Us", error: "Your message could not be sent right now. Please try again later.", message: null, values });
+    }
+    res.render("contact", { title: "Contact Us", error: null, message: "Your message has been sent successfully.", values: {} });
+  } catch (err) { next(err); }
+});
+
 app.get("/signup", (req, res) => res.render("signup", { title: "Create Account", error: null }));
 app.post("/signup", authLimiter, async (req, res, next) => {
   try {
@@ -179,13 +224,25 @@ app.post("/signup", authLimiter, async (req, res, next) => {
     const hash = await bcrypt.hash(p.password, 12);
     await db.execute("INSERT INTO alumni(full_name,email,graduation_year,department,password) VALUES(?,?,?,?,?)",
       [p.full_name.trim(), email, p.graduation_year, p.department.trim(), hash]);
-    res.redirect("/signin?registered=1");
+    let emailStatus = "sent";
+    try {
+      await sendMail({
+        to: email,
+        subject: "Welcome to Alumni Connect",
+        text: "Hello " + p.full_name.trim() + ", your Alumni Connect account has been created successfully. You can now sign in.",
+        html: "<p>Hello " + escapeHtml(p.full_name.trim()) + ",</p><p>Your Alumni Connect account has been created successfully. You can now sign in.</p>"
+      });
+    } catch (mailError) {
+      emailStatus = "failed";
+      console.error("Registration email could not be sent:", mailError.message);
+    }
+    res.redirect("/signin?registered=1&email=" + emailStatus);
   } catch (err) { next(err); }
 });
 
 app.get("/signin", (req, res) => {
   if (req.session.user) return res.redirect(req.session.user.role === "admin" ? "/admin" : "/dashboard");
-  res.render("signin", { title: "Sign In", error: null, message: req.query.registered ? "Account created successfully. Please sign in." : null });
+  res.render("signin", { title: "Sign In", error: null, message: req.query.registered ? (req.query.email === "sent" ? "Account created. A welcome email has been sent." : "Account created, but the welcome email could not be sent. Contact the administrator.") : null });
 });
 app.post("/signin", authLimiter, async (req, res, next) => {
   try {
