@@ -39,6 +39,17 @@ UPDATE alumni SET role='admin' WHERE email='your-admin-email@example.com';
 
 Administrators can manage alumni accounts, events and jobs. Public signup never accepts an administrator role. The application prevents an administrator from deleting their own account.
 
+## SMTP email configuration
+
+The registration form sends a welcome email after account creation. The public contact form sends submitted messages to the configured `SMTP_FROM` mailbox and sets the sender as `Reply-To`.
+
+1. Copy `.env.example` to `.env`.
+2. Set `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS` and `SMTP_FROM` for your email provider.
+3. For Gmail, enable 2-Step Verification and use a Google App Password; do not use your normal account password. For university SMTP, use the host, port and TLS settings supplied by your IT administrator.
+4. Restart the Node.js server after changing `.env`.
+
+If SMTP is not configured or the provider rejects a message, account creation still succeeds but the sign-in page warns that the welcome email could not be sent. Contact submissions show a send failure so the sender can retry. Never commit SMTP credentials.
+
 ## Features
 
 - Alumni signup/signin/logout with bcrypt password hashing
