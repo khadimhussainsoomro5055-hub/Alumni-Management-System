@@ -8,6 +8,10 @@ An alumni portal built with Node.js, Express 5, EJS and MySQL. It supports alumn
 - MySQL 8+ (or a compatible MySQL server)
 - npm
 
+## Brand assets
+
+The public landing page uses the Sukkur IBA Administration Block photograph at `public/images/iba-administration-block.jpg` and the IBA Alumni Connect wordmark at `public/images/iba-alumni-connect.svg`. Keep both files in that directory when deploying the application. The SVG logo is tracked in the repository; copy the supplied campus photograph into `public/images/` as `iba-administration-block.jpg`.
+
 ## Local setup
 
 1. Clone the repository and run `npm install`.
