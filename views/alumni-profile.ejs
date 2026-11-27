@@ -63,8 +63,14 @@
           <% if (message) { %><div class="alert success"><%= message %></div><% } %>
           <% if (error) { %><div class="alert error"><%= error %> Check that SMTP is configured correctly, then try again.</div><% } %>
           <div class="sender-summary">
-            <div class="sender-avatar"><%= sessionUser.full_name.charAt(0).toUpperCase() %></div>
-            <div><strong><%= sessionUser.full_name %></strong><span><%= sessionUser.email %></span></div>
+            <div class="sender-avatar"><%= senderProfile.full_name.charAt(0).toUpperCase() %></div>
+            <div class="sender-summary-details">
+              <strong><%= senderProfile.full_name %></strong>
+              <span><%= senderProfile.email %></span>
+              <span><%= [senderProfile.current_job, senderProfile.company].filter(Boolean).join(" at ") || "Current role not added" %></span>
+              <span><%= [senderProfile.degree, senderProfile.department].filter(Boolean).join(" · ") || "Education details not added" %><% if (senderProfile.graduation_year) { %> · Class of <%= senderProfile.graduation_year %><% } %></span>
+              <span><%= [senderProfile.city, senderProfile.country].filter(Boolean).join(", ") || "Location not added" %></span>
+            </div>
           </div>
           <form action="/alumni/<%= person.id %>/connect" method="POST" class="connect-form">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
