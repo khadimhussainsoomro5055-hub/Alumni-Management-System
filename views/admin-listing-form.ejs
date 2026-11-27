@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><%= title %></title><link rel="stylesheet" href="/style.css"></head>
-<body><header class="app-header"><a class="logo" href="/admin"><img class="site-logo" src="/images/iba-alumni-connect.svg" alt="IBA Alumni Connect"></a><form action="/logout" method="POST">
+<body><header class="app-header"><a class="logo" href="/admin"><img class="site-logo" src="/images/iba-alumni-connect-light.svg" alt="IBA Alumni Connect"></a><form action="/logout" method="POST">
 <input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="logout">Logout</button></form></header>
 <main class="main"><div class="page-head"><div><h1><%= title %></h1><p class="muted">Only administrators can manage listings.</p></div><a class="btn light" href="/admin">Back to Admin</a></div>
 <div class="profile-card"><form method="POST" action="<%= kind === 'event' ? (item ? '/admin/events/' + item.id : '/admin/events') : (item ? '/admin/jobs/' + item.id : '/admin/jobs') %>"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
