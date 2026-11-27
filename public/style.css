@@ -1167,3 +1167,26 @@ td { font-size:12px; line-height:1.55; }
     background-image: none;
   }
 }
+
+
+/* Remove gradients and decorative artwork from non-auth page backgrounds */
+.listing-image-placeholder,
+.event-placeholder,
+.job-placeholder {
+  background-image: none;
+}
+
+.dashboard-welcome,
+.dashboard-profile-hero,
+.events-page-hero,
+.jobs-page-hero,
+.listing-feature-hero,
+.listing-empty-feature {
+  background-image: none;
+}
+
+.dashboard-welcome::after,
+.dashboard-profile-backdrop,
+.listing-feature-hero::after {
+  display: none;
+}
