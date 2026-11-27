@@ -313,7 +313,7 @@ app.post("/logout", auth, (req, res, next) => {
 app.get("/dashboard", auth, async (req, res, next) => {
   try {
     const [[stats]] = await db.query("SELECT (SELECT COUNT(*) FROM alumni) total_alumni,(SELECT COUNT(*) FROM events) total_events,(SELECT COUNT(*) FROM jobs) total_jobs");
-    const [recent] = await db.query("SELECT id,full_name,department,graduation_year,profile_photo FROM alumni ORDER BY id DESC LIMIT 5");
+    const [recent] = await db.query("SELECT id,full_name,department,graduation_year,profile_photo FROM alumni ORDER BY id DESC LIMIT 6");
     res.render("dashboard", { title: "Dashboard", stats, recent });
   } catch (err) { next(err); }
 });
