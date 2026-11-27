@@ -1101,3 +1101,69 @@ td { font-size:12px; line-height:1.55; }
   .feature-hero-side strong { margin:0; font-size:22px; }
   .feature-job-side strong { font-size:14px; }
 }
+
+
+/* Solid background system: keep the auth-page artwork unchanged */
+.landing-hero {
+  background: #17324d;
+}
+
+.hero-photo,
+.hero-shade {
+  display: none;
+}
+
+.dashboard-welcome,
+.dashboard-profile-hero {
+  background: #102a43;
+}
+
+.dashboard-welcome::after,
+.dashboard-profile-backdrop {
+  display: none;
+}
+
+.dashboard-profile-hero {
+  background-image: none;
+}
+
+.events-page-hero,
+.jobs-page-hero,
+.events-feature-hero,
+.jobs-feature-hero {
+  background: #183b56;
+  background-image: none;
+}
+
+.listing-feature-hero::after {
+  display: none;
+}
+
+.listing-image-placeholder {
+  background: #24465f;
+}
+
+.event-placeholder {
+  background: #31566b;
+}
+
+.job-placeholder {
+  background: #46566a;
+}
+
+.listing-empty-feature {
+  background: #f8f7f4;
+}
+
+.events-feature-empty,
+.jobs-feature-empty {
+  background: #183b56 !important;
+  background-image: none !important;
+}
+
+@media (max-width: 760px) {
+  .dashboard-profile-hero {
+    background: #102a43;
+    background-image: none;
+  }
+}
