@@ -8,7 +8,7 @@
 </head>
 <body>
   <header class="app-header">
-    <a class="logo" href="/dashboard"><img class="site-logo" src="/images/iba-alumni-connect-light.svg" alt="IBA Alumni Connect"></a>
+    <a class="logo" href="/dashboard"><img class="site-logo" src="/images/iba-alumni-connect.svg" alt="IBA Alumni Connect"></a>
     <div class="header-right">
       <span class="header-name"><%= sessionUser ? sessionUser.full_name : "" %></span>
 
@@ -97,5 +97,7 @@
       </div>
     </main>
   </div>
+
+<footer class="app-footer"><a href="/" class="app-footer-brand">IBA Alumni Connect</a><span>Sukkur IBA alumni, connected beyond graduation.</span><div class="app-footer-links"><a href="/contact">Contact</a><a href="/dashboard">Dashboard</a></div><small>© <%= new Date().getFullYear() %> Alumni Connect</small></footer>
 </body>
 </html>
