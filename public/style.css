@@ -452,3 +452,79 @@ td { font-size:13px; }
   .app-header .site-logo { width:158px; }
   .landing-logo { width:158px; }
 }
+
+
+/* Alumni directory and member profile experience */
+.alumni-directory-card {
+  display:flex; flex-direction:column; gap:18px; min-width:0;
+  padding:22px 23px; text-align:left; border-radius:3px;
+  box-shadow:none; transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.alumni-directory-card:hover { transform:translateY(-2px); border-color:#d7c4a5; box-shadow:0 10px 24px rgba(16,36,58,.07); }
+.alumni-card-main { display:flex; align-items:center; gap:20px; min-width:0; color:inherit; }
+.alumni-card-main:hover { color:inherit; }
+.alumni-card-avatar { width:76px!important; height:76px!important; flex:0 0 76px; border-radius:50%; object-fit:cover; }
+.alumni-card-avatar.avatar-fallback { font-family:"Playfair Display",Georgia,serif; font-size:29px; font-weight:600; }
+.alumni-card-copy { min-width:0; }
+.alumni-card-copy h2 { margin:0 0 5px!important; color:var(--navy-950); font-family:"Playfair Display",Georgia,serif!important; font-size:21px!important; font-weight:700; line-height:1.25; }
+.alumni-card-copy .designation { margin-bottom:7px; color:var(--gold-600); font-size:12px; font-weight:750; line-height:1.5; overflow-wrap:anywhere; }
+.alumni-card-copy .designation span { color:#8b95a2; font-weight:500; }
+.alumni-card-department { margin:0 0 5px!important; color:#526174; font-size:12px; font-weight:650; }
+.alumni-card-meta { display:flex; flex-wrap:wrap; gap:8px 16px; margin:0!important; color:#8490a0; font-size:11px; }
+.alumni-card-actions { display:flex; gap:9px; padding-left:96px; }
+.alumni-card-actions .btn { min-height:34px; padding:7px 12px; font-size:11px; }
+.alumni-profile-main { max-width:1400px; }
+.profile-back { margin:0 0 18px; }
+.alumni-profile-hero { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:30px; background:#fff; border:1px solid var(--line); box-shadow:var(--shadow-soft); }
+.alumni-profile-identity { display:flex; align-items:center; gap:24px; min-width:0; }
+.alumni-profile-avatar { width:116px; height:116px; flex:0 0 116px; border:4px solid var(--gold-100); border-radius:50%; object-fit:cover; }
+.alumni-profile-avatar-fallback { display:grid; place-items:center; background:var(--gold-100); color:var(--navy-950); font-family:"Playfair Display",Georgia,serif; font-size:43px; }
+.alumni-profile-name { min-width:0; }
+.profile-eyebrow { color:var(--gold-600); font-size:9px; font-weight:800; letter-spacing:1.6px; }
+.alumni-profile-name h1 { margin:7px 0 5px; color:var(--navy-950); font-family:"Playfair Display",Georgia,serif; font-size:clamp(27px,3vw,36px); line-height:1.15; }
+.alumni-profile-name p { margin:0 0 7px; color:#64748b; font-size:13px; }
+.profile-batch { color:#9a7a4b; font-size:11px; font-weight:750; }
+.alumni-profile-layout { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(320px,.8fr); align-items:start; gap:22px; margin-top:22px; }
+.profile-detail-panel,.connect-panel { padding:27px; background:#fff; border:1px solid var(--line); box-shadow:var(--shadow-soft); }
+.profile-panel-heading h2,.connect-panel h2 { margin:8px 0 20px; color:var(--navy-950); font-family:"Playfair Display",Georgia,serif; font-size:25px; }
+.professional-highlight { display:flex; align-items:center; gap:16px; padding:19px; background:#f8f7f4; border-left:3px solid var(--gold-500); }
+.professional-icon { display:grid; place-items:center; width:48px; height:48px; flex:0 0 48px; border-radius:50%; background:#efe4d3; color:var(--gold-600); font-size:23px; }
+.professional-highlight span,.profile-fact span { color:#9a7a4b; font-size:9px; font-weight:800; letter-spacing:1.1px; }
+.professional-highlight h3 { margin:4px 0 2px; color:var(--navy-950); font-size:16px; }
+.professional-highlight p { margin:0; color:#697789; font-size:12px; }
+.profile-facts { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0; margin-top:19px; border-top:1px solid #edf0f3; border-left:1px solid #edf0f3; }
+.profile-fact { display:flex; flex-direction:column; gap:6px; min-width:0; padding:16px; border-right:1px solid #edf0f3; border-bottom:1px solid #edf0f3; }
+.profile-fact strong { color:#344256; font-size:13px; font-weight:650; overflow-wrap:anywhere; }
+.profile-note { margin-top:17px; color:#8a95a3; font-size:10px; line-height:1.7; }
+.connect-panel { scroll-margin-top:25px; }
+.connect-panel h2 { margin-bottom:8px; }
+.connect-intro { margin:0 0 18px; color:#748092; font-size:12px; line-height:1.7; }
+.sender-summary { display:flex; align-items:center; gap:11px; margin:18px 0; padding:12px; background:#f7f8fa; border:1px solid #edf0f3; }
+.sender-avatar { display:grid; place-items:center; width:39px; height:39px; flex:0 0 39px; border-radius:50%; background:#efe4d3; color:var(--navy-950); font-family:"Playfair Display",Georgia,serif; font-size:18px; }
+.sender-summary strong,.sender-summary span { display:block; }
+.sender-summary strong { color:var(--navy-950); font-size:12px; }
+.sender-summary span { color:#8490a0; font-size:10px; }
+.connect-form label { margin-bottom:8px; }
+.connect-form textarea { min-height:145px; font-size:13px; line-height:1.7; }
+.message-help { margin:8px 0 15px; color:#8791a0; font-size:10px; line-height:1.65; }
+.connect-submit { width:100%; min-height:45px; }
+@media(max-width:1000px) {
+  .alumni-profile-layout { grid-template-columns:1fr; }
+}
+@media(max-width:760px) {
+  .alumni-grid { grid-template-columns:1fr; }
+  .alumni-profile-hero { align-items:flex-start; flex-direction:column; padding:22px; }
+  .alumni-profile-identity { gap:16px; }
+  .alumni-profile-avatar { width:88px; height:88px; flex-basis:88px; }
+  .profile-detail-panel,.connect-panel { padding:21px; }
+}
+@media(max-width:480px) {
+  .alumni-directory-card { padding:17px; }
+  .alumni-card-main { gap:13px; align-items:flex-start; }
+  .alumni-card-avatar { width:60px!important; height:60px!important; flex-basis:60px; }
+  .alumni-card-copy h2 { font-size:18px!important; }
+  .alumni-card-actions { padding-left:73px; }
+  .alumni-profile-identity { align-items:flex-start; flex-direction:column; }
+  .alumni-profile-hero > .btn { width:100%; }
+  .profile-facts { grid-template-columns:1fr; }
+}
