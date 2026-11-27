@@ -39,63 +39,41 @@
 
     </aside>
 
-    <main class="main">
-      <div class="page-head">
-        <div>
-          <h1>Dashboard</h1>
-          <p class="muted">Welcome back, <%= sessionUser.full_name %>.</p>
+    <main class="main dashboard-main">
+      <section class="dashboard-welcome">
+        <div class="dashboard-welcome-copy">
+          <span class="dashboard-kicker">IBA ALUMNI CONNECT</span>
+          <h1>Welcome back, <em><%= sessionUser.full_name.split(" ")[0] %>.</em></h1>
+          <p>Your community, career opportunities and university connections — all in one place.</p>
+          <a class="dashboard-welcome-link" href="/profile">Manage your profile <span>→</span></a>
         </div>
-        <a class="btn light" href="/profile">Edit Profile</a>
-      </div>
+        <div class="dashboard-welcome-art" aria-hidden="true">
+          <span class="welcome-orbit orbit-one"></span><span class="welcome-orbit orbit-two"></span>
+          <span class="welcome-monogram">IBA</span><span class="welcome-caption">CONNECTED<br>BEYOND GRADUATION</span>
+        </div>
+      </section>
 
-      <div class="cards">
-        <div class="stat-card">
-          <h3>Total Alumni</h3>
-          <div class="number"><%= stats.total_alumni %></div>
-        </div>
-        <div class="stat-card">
-          <h3>Upcoming Events</h3>
-          <div class="number"><%= stats.total_events %></div>
-        </div>
-        <div class="stat-card">
-          <h3>Job Opportunities</h3>
-          <div class="number"><%= stats.total_jobs %></div>
-        </div>
-      </div>
+      <div class="dashboard-section-intro"><div><span class="dashboard-kicker">YOUR COMMUNITY AT A GLANCE</span><h2>Community overview</h2></div><span class="dashboard-updated">Live platform statistics</span></div>
+      <section class="dashboard-stat-grid">
+        <article class="dashboard-stat alumni-stat"><div class="dashboard-stat-top"><span class="dashboard-stat-icon">♧</span><span class="dashboard-stat-label">NETWORK</span></div><strong><%= stats.total_alumni %></strong><h3>Registered alumni</h3><p>Graduates in your community</p></article>
+        <article class="dashboard-stat events-stat"><div class="dashboard-stat-top"><span class="dashboard-stat-icon">▦</span><span class="dashboard-stat-label">CAMPUS LIFE</span></div><strong><%= stats.total_events %></strong><h3>Upcoming events</h3><p>Opportunities to reconnect</p></article>
+        <article class="dashboard-stat jobs-stat"><div class="dashboard-stat-top"><span class="dashboard-stat-icon">↗</span><span class="dashboard-stat-label">CAREER</span></div><strong><%= stats.total_jobs %></strong><h3>Job opportunities</h3><p>Roles shared by the network</p></article>
+      </section>
 
-      <div class="panel">
-        <h2>Recently Joined Alumni</h2>
-        <div class="table-wrap">
-          <table>
-            <tr>
-              <th>Alumni</th>
-              <th>Department</th>
-              <th>Batch</th>
-            </tr>
-
-            <% recent.forEach(a => { %>
-              <tr>
-                <td>
-                  <div style="display:flex;align-items:center;gap:12px">
-                    <% if (a.profile_photo) { %>
-                      <img class="avatar" src="<%= a.profile_photo %>">
-                    <% } else { %>
-                      <div class="avatar-fallback">
-                        <%= a.full_name.charAt(0).toUpperCase() %>
-                      </div>
-                    <% } %>
-
-                    <%= a.full_name %>
-                  </div>
-                </td>
-                <td><%= a.department %></td>
-                <td><%= a.graduation_year %></td>
-              </tr>
-            <% }) %>
-          </table>
+      <section class="dashboard-community-section">
+        <div class="dashboard-section-intro"><div><span class="dashboard-kicker">GROW YOUR NETWORK</span><h2>Recently joined alumni</h2><p>Get to know the latest members of the Sukkur IBA alumni community.</p></div><a class="dashboard-section-link" href="/alumni">Explore directory <span>→</span></a></div>
+        <% if (recent.length) { %>
+        <div class="dashboard-alumni-grid">
+          <% recent.forEach(a => { %>
+            <article class="dashboard-alumni-card">
+              <% if (a.profile_photo) { %><img class="dashboard-alumni-avatar" src="<%= a.profile_photo %>" alt="<%= a.full_name %>" loading="lazy"><% } else { %><div class="dashboard-alumni-avatar avatar-fallback"><%= a.full_name.charAt(0).toUpperCase() %></div><% } %>
+              <div class="dashboard-alumni-info"><h3><%= a.full_name %></h3><p><%= a.current_job || "Alumni member" %><% if (a.company) { %> · <%= a.company %><% } %></p><div class="dashboard-alumni-tags"><span><%= a.department || "Sukkur IBA" %></span><span>Class of <%= a.graduation_year || "—" %></span></div></div>
+            </article>
+          <% }) %>
         </div>
-      </div>
-    </main>
+        <% } else { %><div class="empty-state"><strong>Your alumni community is growing</strong><p>New members will appear here after they join.</p></div><% } %>
+      </section>
+    </main>ain>
   </div>
 
 <footer class="app-footer"><a href="/" class="app-footer-brand">IBA Alumni Connect</a><span>Sukkur IBA alumni, connected beyond graduation.</span><div class="app-footer-links"><a href="/contact">Contact</a><a href="/dashboard">Dashboard</a></div><small>© <%= new Date().getFullYear() %> Alumni Connect</small></footer>
