@@ -114,10 +114,21 @@ app.use((req, res, next) => {
 });
 const loginAttempts = new Map();
 function authLimiter(req, res, next) {
-  const key = req.ip + ":" + (req.path === "/signin" ? String(req.body.email || "").toLowerCase() : "signup");
+  const email = req.path === "/signin" ? String(req.body.email || "").trim().toLowerCase().slice(0, 150) : "signup";
+  const key = (req.ip || "unknown") + ":" + email;
   const now = Date.now();
+  const windowMs = 15 * 60 * 1000;
+
+  // Bound memory use if an attacker rotates IP addresses or email values.
+  if (loginAttempts.size > 5000) {
+    for (const [attemptKey, attempt] of loginAttempts) {
+      if (now - attempt.startedAt > windowMs) loginAttempts.delete(attemptKey);
+    }
+    while (loginAttempts.size > 5000) loginAttempts.delete(loginAttempts.keys().next().value);
+  }
+
   const entry = loginAttempts.get(key);
-  if (!entry || now - entry.startedAt > 15 * 60 * 1000) {
+  if (!entry || now - entry.startedAt > windowMs) {
     loginAttempts.set(key, { startedAt: now, count: 1 });
     return next();
   }
