@@ -22,7 +22,7 @@
       <% } %>
 
       <form action="/signin" method="POST">
-<input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <div class="form-group">
           <label>Email</label>
           <input type="email" name="email" required>
@@ -43,5 +43,10 @@
       </div>
     </div>
   </div>
-<footer class="app-footer"><a href="/" class="app-footer-brand">IBA Alumni Connect</a><span>Sukkur IBA alumni, connected beyond graduation.</span><div class="app-footer-links"><a href="/contact">Contact</a></div><small>© <%= new Date().getFullYear() %> Alumni Connect</small></footer></body>
+<footer class="app-footer">
+  <a href="/" class="app-footer-brand">IBA Alumni Connect</a>
+  <span>Sukkur IBA alumni, connected beyond graduation.</span>
+  <div class="app-footer-links"><a href="/contact">Contact</a></div>
+  <small>© <%= new Date().getFullYear() %> Alumni Connect</small>
+</footer></body>
 </html>
