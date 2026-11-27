@@ -426,12 +426,10 @@ p { line-height:1.75; }
 .auth-card .brand { color:var(--navy-950); }
 .auth-card .brand .auth-logo { margin:0 auto 10px; }
 .hero-photo {
-  background-image:
-    url("/images/iba-administration-block.jpg"),
-    url("https://commons.wikimedia.org/wiki/Special:FilePath/Sukkur_IBA_University_-_academic_block_I_%282%29.jpg");
-  background-position:center 78%, center 48%;
-  background-size:cover,cover;
-  background-repeat:no-repeat,no-repeat;
+  background-image:url("/images/iba-administration-block.jpg");
+  background-position:center 78%;
+  background-size:cover;
+  background-repeat:no-repeat;
   background-color:#18344d;
 }
 body, input, select, textarea, button { font-family:"DM Sans", Inter, "Segoe UI", Arial, sans-serif; }
