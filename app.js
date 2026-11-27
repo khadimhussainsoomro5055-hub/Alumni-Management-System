@@ -361,37 +361,46 @@ app.post("/alumni/:id/connect", auth, async (req, res, next) => {
     if (Date.now() - lastSent < 60 * 1000) {
       return res.status(429).send("Please wait one minute before sending another request to this alumnus.");
     }
-    const [rows] = await db.execute(
-      "SELECT id,full_name,email,department,graduation_year,degree,current_job,company,city,country FROM alumni WHERE id=? LIMIT 1",
+    const [recipientRows] = await db.execute(
+      "SELECT id,full_name,email FROM alumni WHERE id=? LIMIT 1",
       [alumniId]
     );
-    if (!rows.length) return res.status(404).send("Alumni profile not found.");
-    const recipient = rows[0];
-    const sender = req.session.user;
+    if (!recipientRows.length) return res.status(404).send("Alumni profile not found.");
+    const [senderRows] = await db.execute(
+      "SELECT id,full_name,email,degree,department,graduation_year,current_job,company,city,country FROM alumni WHERE id=? LIMIT 1",
+      [req.session.user.id]
+    );
+    if (!senderRows.length) return res.status(401).send("Your account could not be verified. Please sign in again.");
+    const recipient = recipientRows[0];
+    const sender = senderRows[0];
     const safeMessage = escapeHtml(message).replace(/\r?\n/g, "<br>");
-    const roleLine = [recipient.current_job, recipient.company].filter(Boolean).join(" at ") || "Professional role not provided";
-    const locationLine = [recipient.city, recipient.country].filter(Boolean).join(", ") || "Location not provided";
+    const senderRoleLine = [sender.current_job, sender.company].filter(Boolean).join(" at ") || "Not provided";
+    const senderLocationLine = [sender.city, sender.country].filter(Boolean).join(", ") || "Not provided";
+    const senderEducationLine = [sender.degree, sender.department].filter(Boolean).join(" · ") || sender.department || "Not provided";
     await sendMail({
       to: recipient.email,
       replyTo: sender.email,
       subject: "Alumni Connect: " + sender.full_name + " would like to connect",
-      text: "Hello " + recipient.full_name + ",\n\n" +
-        sender.full_name + " (" + sender.email + ") would like to connect with you.\n\n" +
-        "Current professional information: " + roleLine + "\n" +
-        "Department: " + recipient.department + " | Graduation year: " + recipient.graduation_year + "\n" +
-        "Location: " + locationLine + "\n\nMessage from " + sender.full_name + ":\n" + message +
-        "\n\nYou can reply directly to this email to contact " + sender.full_name + ".",
+      text: "Hello " + recipient.full_name + ",\\n\\n" +
+        sender.full_name + " (" + sender.email + ") would like to connect with you through Alumni Connect.\\n\\n" +
+        "ABOUT THE PERSON CONTACTING YOU\\n" +
+        "Current role: " + senderRoleLine + "\\n" +
+        "Education: " + senderEducationLine + "\\n" +
+        "Graduation year: " + (sender.graduation_year || "Not provided") + "\\n" +
+        "Location: " + senderLocationLine + "\\n\\n" +
+        "PERSONAL MESSAGE\\n" + message + "\\n\\n" +
+        "You can reply directly to this email to contact " + sender.full_name + ".",
       html: "<div style='font-family:Arial,sans-serif;max-width:620px;margin:auto;color:#243447;line-height:1.6'>" +
         "<h2 style='color:#17324d'>A new connection request</h2>" +
         "<p>Hello " + escapeHtml(recipient.full_name) + ",</p>" +
         "<p><strong>" + escapeHtml(sender.full_name) + "</strong> (" + escapeHtml(sender.email) + ") would like to connect with you through Alumni Connect.</p>" +
         "<div style='padding:16px;background:#f5f7fa;border-left:4px solid #c49a5a;margin:20px 0'>" +
-        "<h3 style='margin:0 0 10px;color:#17324d'>Your professional profile</h3>" +
-        "<p style='margin:4px 0'><strong>Current role:</strong> " + escapeHtml(roleLine) + "</p>" +
-        "<p style='margin:4px 0'><strong>Department:</strong> " + escapeHtml(recipient.department || "Not provided") + "</p>" +
-        "<p style='margin:4px 0'><strong>Graduation year:</strong> " + escapeHtml(recipient.graduation_year || "Not provided") + "</p>" +
-        "<p style='margin:4px 0'><strong>Location:</strong> " + escapeHtml(locationLine) + "</p></div>" +
-        "<h3 style='color:#17324d'>Message from " + escapeHtml(sender.full_name) + "</h3>" +
+        "<h3 style='margin:0 0 10px;color:#17324d'>About the person contacting you</h3>" +
+        "<p style='margin:4px 0'><strong>Current role:</strong> " + escapeHtml(senderRoleLine) + "</p>" +
+        "<p style='margin:4px 0'><strong>Education:</strong> " + escapeHtml(senderEducationLine) + "</p>" +
+        "<p style='margin:4px 0'><strong>Graduation year:</strong> " + escapeHtml(sender.graduation_year || "Not provided") + "</p>" +
+        "<p style='margin:4px 0'><strong>Location:</strong> " + escapeHtml(senderLocationLine) + "</p></div>" +
+        "<h3 style='color:#17324d'>Personal message from " + escapeHtml(sender.full_name) + "</h3>" +
         "<p style='padding:16px;background:#fbfaf7;border:1px solid #eee5d8'>" + safeMessage + "</p>" +
         "<p>You can reply directly to this email to contact " + escapeHtml(sender.full_name) + ".</p>" +
         "<p style='color:#7b8794;font-size:12px'>Sent via Alumni Connect</p></div>"
