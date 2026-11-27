@@ -1053,3 +1053,51 @@ td { font-size:12px; line-height:1.55; }
 @media(prefers-reduced-motion:reduce) {
   .dashboard-stat,.dashboard-alumni-card,.listing-card { transition:none; }
 }
+
+
+/* Featured, image-led heroes for the signed-in dashboard, events and jobs */
+.dashboard-profile-hero { isolation:isolate; min-height:315px; padding:35px clamp(25px,4vw,52px); background:#102a43 url('/images/iba-alumni-connect.svg') no-repeat right 7% center; background-size:min(42%,480px) auto; }
+.dashboard-profile-backdrop { position:absolute; z-index:-1; inset:0; background:linear-gradient(100deg,rgba(10,28,46,.98) 0%,rgba(16,43,66,.94) 57%,rgba(16,43,66,.72) 100%); }
+.dashboard-profile-copy { max-width:780px; }
+.dashboard-profile-copy h1 { font-size:clamp(29px,3.5vw,42px); }
+.dashboard-profile-role { margin:0 0 17px!important; color:#e4c99e!important; font-size:13px!important; font-weight:750; }
+.dashboard-profile-details { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px 22px; max-width:610px; margin-top:17px; }
+.dashboard-profile-details span { min-width:0; color:rgba(255,255,255,.88); font-size:11px; overflow-wrap:anywhere; }
+.dashboard-profile-details strong { display:block; margin-bottom:4px; color:#d8b77f; font-size:8px; letter-spacing:1.2px; }
+.dashboard-profile-photo-wrap { position:relative; z-index:2; display:flex; align-items:center; flex-direction:column; gap:10px; flex:0 0 170px; }
+.dashboard-profile-photo { display:grid; place-items:center; width:145px; height:145px; border:4px solid rgba(231,204,161,.9); border-radius:50%; object-fit:cover; background:#f1e8da; color:#17324d; font-family:"Playfair Display",Georgia,serif; font-size:55px; box-shadow:0 12px 30px rgba(0,0,0,.25); }
+.dashboard-profile-initial { display:flex; }
+.dashboard-profile-photo-caption { color:#e2c394; font-size:8px; font-weight:850; letter-spacing:1.5px; }
+.listing-feature-hero { isolation:isolate; min-height:320px; background-color:#142d43; background-position:center; background-size:cover; background-repeat:no-repeat; }
+.listing-feature-hero::after { content:""; position:absolute; z-index:-1; inset:0; background:linear-gradient(90deg,rgba(12,29,46,.94),rgba(12,29,46,.74) 53%,rgba(12,29,46,.12)); pointer-events:none; }
+.listing-feature-hero .listing-hero-copy { max-width:760px; }
+.listing-feature-hero .listing-hero-copy h1 { max-width:720px; font-size:clamp(31px,4vw,48px); overflow-wrap:anywhere; }
+.listing-feature-hero .listing-hero-copy > p { max-width:650px; display:-webkit-box; overflow:hidden; -webkit-line-clamp:3; -webkit-box-orient:vertical; }
+.listing-feature-hero .listing-hero-meta { flex-wrap:wrap; }
+.feature-hero-side { position:relative; z-index:2; display:flex; align-items:center; flex-direction:column; justify-content:center; width:170px; min-height:160px; flex:0 0 170px; padding:18px; border:1px solid rgba(255,255,255,.42); border-radius:10px; background:rgba(12,29,46,.48); color:#fff; text-align:center; backdrop-filter:blur(5px); }
+.feature-hero-label { color:#e4c99e; font-size:8px; font-weight:850; letter-spacing:1.3px; }
+.feature-hero-side strong { margin:9px 0 3px; color:#fff; font-family:"Playfair Display",Georgia,serif; font-size:45px; line-height:1; }
+.feature-hero-side > span:last-child { color:rgba(255,255,255,.85); font-size:10px; }
+.feature-job-company { margin:0 0 8px!important; color:#e6c58e!important; font-size:15px!important; font-weight:800; }
+.feature-job-side strong { font-family:"DM Sans",sans-serif; font-size:23px; letter-spacing:2px; }
+.events-feature-empty,.jobs-feature-empty { background-image:linear-gradient(110deg,#142d43,#31566b)!important; }
+@media(max-width:760px) {
+  .dashboard-profile-hero { align-items:flex-start; min-height:0; background-size:65% auto; background-position:right 15% center; }
+  .dashboard-profile-photo-wrap { flex-basis:125px; }
+  .dashboard-profile-photo { width:105px; height:105px; }
+  .listing-feature-hero { min-height:280px; }
+  .feature-hero-side { width:120px; min-height:130px; flex-basis:120px; padding:12px; }
+  .feature-hero-side strong { font-size:35px; }
+}
+@media(max-width:560px) {
+  .dashboard-profile-hero { flex-direction:column; gap:22px; padding:25px 20px; background-size:90% auto; background-position:right bottom; }
+  .dashboard-profile-details { grid-template-columns:1fr 1fr; gap:10px 13px; }
+  .dashboard-profile-photo-wrap { align-self:flex-end; flex-direction:row; }
+  .dashboard-profile-photo { width:62px; height:62px; border-width:2px; font-size:26px; }
+  .dashboard-profile-photo-caption { font-size:7px; }
+  .listing-feature-hero { flex-direction:column; align-items:flex-start; gap:18px; min-height:0; padding:25px 20px; }
+  .listing-feature-hero .listing-hero-copy h1 { font-size:32px; }
+  .feature-hero-side { align-self:flex-end; flex-direction:row; justify-content:flex-start; gap:10px; width:auto; min-height:0; padding:10px 13px; }
+  .feature-hero-side strong { margin:0; font-size:22px; }
+  .feature-job-side strong { font-size:14px; }
+}
