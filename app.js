@@ -646,6 +646,10 @@ app.use((req, res) => res.status(404).send("Page not found."));
 async function start() {
   try {
     await db.query("SELECT 1");
+    for (const table of ["events", "jobs"]) {
+      const [columns] = await db.execute("SELECT COUNT(*) AS total FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = 'image_url'", [table]);
+      if (!columns[0].total) await db.query("ALTER TABLE " + table + " ADD COLUMN image_url VARCHAR(500) NULL");
+    }
     await db.query("CREATE TABLE IF NOT EXISTS app_sessions (session_id VARCHAR(128) NOT NULL PRIMARY KEY, data MEDIUMTEXT NOT NULL, expires_at DATETIME NOT NULL, INDEX idx_app_sessions_expiry (expires_at))");
     await db.query("DELETE FROM app_sessions WHERE expires_at <= NOW()");
     console.log("Connected to MySQL.");
