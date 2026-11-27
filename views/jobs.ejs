@@ -48,14 +48,15 @@
       </div>
 
       <% if (jobs.length) { %>
-      <div class="jobs-grid">
+      <div class="jobs-grid listing-page-grid">
         <% jobs.forEach(j => { %>
-          <div class="panel">
-            <div class="card-title"><%= j.title %></div>
-            <p><strong><%= j.company %></strong></p>
-            <p><strong>Location:</strong> <%= j.location || "Not specified" %></p>
-            <p class="muted"><%= j.description %></p>
-          </div>
+          <article class="listing-card job-card">
+            <div class="listing-image-wrap">
+              <% if (j.image_url) { %><img src="<%= j.image_url %>" alt="<%= j.title %>" loading="lazy"><% } else { %><div class="listing-image-placeholder job-placeholder"><span>CAREER OPPORTUNITY</span></div><% } %>
+              <span class="listing-type">JOB OPENING</span>
+            </div>
+            <div class="listing-card-body"><div class="listing-eyebrow">CAREER OPPORTUNITY</div><h2><%= j.title %></h2><p class="listing-company"><%= j.company %></p><p class="listing-meta"><span>⌖</span> <%= j.location || "Location not specified" %></p><% if (j.description) { %><p class="listing-description"><%= j.description %></p><% } %></div>
+          </article>
         <% }) %>
       </div>
       <% } else { %>
