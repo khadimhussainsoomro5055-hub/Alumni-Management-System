@@ -10,7 +10,7 @@
 </style>
 </head>
 <body>
-<header class="app-header"><a class="logo" href="/admin"><img class="site-logo" src="/images/iba-alumni-connect.svg" alt="IBA Alumni Connect"></a><div class="header-right"><span class="header-name"><%= sessionUser.full_name %></span><form action="/logout" method="POST">
+<header class="app-header"><a class="logo" href="/admin"><img class="site-logo" src="/images/iba-alumni-connect-light.svg" alt="IBA Alumni Connect"></a><div class="header-right"><span class="header-name"><%= sessionUser.full_name %></span><form action="/logout" method="POST">
 <input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="logout" type="submit">Logout</button></form></div></header>
 <div class="layout"><aside class="sidebar">
 <div class="sidebar-title">Administration</div><a class="nav-item active" href="/admin">Admin Dashboard</a>
