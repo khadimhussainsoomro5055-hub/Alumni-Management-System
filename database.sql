@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS events (
   event_date DATETIME NOT NULL,
   location VARCHAR(200) NOT NULL,
   description TEXT,
+  image_url VARCHAR(500),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -55,6 +56,7 @@ CREATE TABLE IF NOT EXISTS jobs (
   company VARCHAR(200) NOT NULL,
   location VARCHAR(150),
   description TEXT,
+  image_url VARCHAR(500),
   posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

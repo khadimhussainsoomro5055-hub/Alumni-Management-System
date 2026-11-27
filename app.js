@@ -109,7 +109,7 @@ function verifyCsrf(req, res, next) {
 app.use((req, res, next) => {
   if (!req.session.csrfToken) req.session.csrfToken = crypto.randomBytes(32).toString("hex");
   res.locals.csrfToken = req.session.csrfToken;
-  if (req.method === "POST" && req.path !== "/profile") return verifyCsrf(req, res, next);
+  if (req.method === "POST" && req.path !== "/profile" && !/^\/admin\/(events|jobs)(\/\d+)?$/.test(req.path)) return verifyCsrf(req, res, next);
   next();
 });
 const loginAttempts = new Map();
@@ -127,13 +127,26 @@ function authLimiter(req, res, next) {
 }
 
 const uploadDir = path.join(__dirname, "public", "uploads", "profiles");
+const listingUploadDir = path.join(__dirname, "public", "uploads", "listings");
 fs.mkdirSync(uploadDir, { recursive: true });
+fs.mkdirSync(listingUploadDir, { recursive: true });
 const upload = multer({
   storage: multer.diskStorage({
     destination: (_, __, cb) => cb(null, uploadDir),
     filename: (_, file, cb) => cb(null, "profile-" + Date.now() + "-" + Math.round(Math.random() * 1e9) + path.extname(file.originalname).toLowerCase())
   }),
   limits: { fileSize: 2 * 1024 * 1024, files: 1 },
+  fileFilter: (_, file, cb) => {
+    if (["image/jpeg", "image/png", "image/webp"].includes(file.mimetype)) return cb(null, true);
+    cb(new Error("Only JPG, PNG and WEBP images are allowed."));
+  }
+});
+const listingUpload = multer({
+  storage: multer.diskStorage({
+    destination: (_, __, cb) => cb(null, listingUploadDir),
+    filename: (_, file, cb) => cb(null, "listing-" + Date.now() + "-" + Math.round(Math.random() * 1e9) + path.extname(file.originalname).toLowerCase())
+  }),
+  limits: { fileSize: 4 * 1024 * 1024, files: 1 },
   fileFilter: (_, file, cb) => {
     if (["image/jpeg", "image/png", "image/webp"].includes(file.mimetype)) return cb(null, true);
     cb(new Error("Only JPG, PNG and WEBP images are allowed."));
@@ -155,6 +168,11 @@ function escapeHtml(value) {
 function validYear(value) {
   const year = Number(value);
   return Number.isInteger(year) && year >= 1950 && year <= new Date().getFullYear() + 10;
+}
+function removeListingImage(image) {
+  if (!image || !image.startsWith("/uploads/listings/")) return;
+  const fullPath = path.join(listingUploadDir, path.basename(image));
+  if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
 }
 function removePhoto(photo) {
   if (!photo || !photo.startsWith("/uploads/profiles/")) return;
@@ -181,7 +199,28 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/", (req, res) => res.redirect(req.session.user ? (req.session.user.role === "admin" ? "/admin" : "/dashboard") : "/signin"));
+app.get("/", async (req, res, next) => {
+  if (req.session.user) return res.redirect(req.session.user.role === "admin" ? "/admin" : "/dashboard");
+  try {
+    const [[stats]] = await db.query(`
+      SELECT
+        (SELECT COUNT(*) FROM alumni) AS total_alumni,
+        (SELECT COUNT(DISTINCT department) FROM alumni WHERE department IS NOT NULL AND department <> '') AS total_departments,
+        (SELECT COUNT(*) FROM events WHERE event_date >= NOW()) AS upcoming_events,
+        (SELECT COUNT(*) FROM jobs) AS total_jobs
+    `);
+    const [recentAlumni] = await db.query(
+      "SELECT full_name, department, graduation_year, current_job, company, city, profile_photo FROM alumni ORDER BY created_at DESC, id DESC LIMIT 6"
+    );
+    const [upcomingEvents] = await db.query(
+      "SELECT title, event_date, location, description, image_url FROM events WHERE event_date >= NOW() ORDER BY event_date ASC LIMIT 4"
+    );
+    const [latestJobs] = await db.query(
+      "SELECT title, company, location, description, posted_at, image_url FROM jobs ORDER BY posted_at DESC LIMIT 4"
+    );
+    res.render("landing", { title: "Alumni Connect | Stay Connected", stats, recentAlumni, upcomingEvents, latestJobs });
+  } catch (err) { next(err); }
+});
 // Public contact form. The SMTP recipient is the configured SMTP_FROM address.
 app.get("/contact", (req, res) => res.render("contact", { title: "Contact Us", error: null, message: null, values: {} }));
 app.post("/contact", async (req, res, next) => {
@@ -267,7 +306,7 @@ app.post("/logout", auth, (req, res, next) => {
   req.session.destroy(err => {
     if (err) return next(err);
     res.clearCookie("alumni.sid");
-    res.redirect("/signin");
+    res.redirect("/");
   });
 });
 
@@ -284,17 +323,17 @@ app.get("/alumni", auth, async (req, res, next) => {
     const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
     const pageSize = 12;
     const offset = (page - 1) * pageSize;
-    let sql = "SELECT id,full_name,email,phone,department,graduation_year,current_job,company,city,country,profile_photo FROM alumni";
-    let countSql = "SELECT COUNT(*) AS total FROM alumni";
-    const params = [];
-    const countParams = [];
+    let sql = "SELECT id,full_name,department,degree,graduation_year,current_job,company,city,country,profile_photo FROM alumni WHERE id <> ?";
+    let countSql = "SELECT COUNT(*) AS total FROM alumni WHERE id <> ?";
+    const params = [req.session.user.id];
+    const countParams = [req.session.user.id];
     if (search) {
-      const where = " WHERE full_name LIKE ? OR email LIKE ? OR department LIKE ? OR current_job LIKE ? OR city LIKE ?";
+      const where = " AND (full_name LIKE ? OR department LIKE ? OR degree LIKE ? OR current_job LIKE ? OR company LIKE ? OR city LIKE ?)";
       sql += where;
       countSql += where;
       const term = "%" + search + "%";
-      params.push(term, term, term, term, term);
-      countParams.push(term, term, term, term, term);
+      params.push(term, term, term, term, term, term);
+      countParams.push(term, term, term, term, term, term);
     }
     sql += " ORDER BY full_name LIMIT ? OFFSET ?";
     params.push(pageSize, offset);
@@ -302,6 +341,103 @@ app.get("/alumni", auth, async (req, res, next) => {
     const [alumni] = await db.execute(sql, params);
     res.render("alumni", { title: "Alumni Directory", alumni, search, page, totalPages: Math.max(1, Math.ceil(count.total / pageSize)) });
   } catch (err) { next(err); }
+});
+
+// View another member's public professional profile.
+app.get("/alumni/:id", auth, async (req, res, next) => {
+  try {
+    const alumniId = Number.parseInt(req.params.id, 10);
+    if (!Number.isInteger(alumniId) || alumniId < 1) return res.status(404).send("Alumni profile not found.");
+    const [rows] = await db.execute(
+      "SELECT id,full_name,department,graduation_year,degree,current_job,company,city,country,profile_photo,created_at FROM alumni WHERE id=? LIMIT 1",
+      [alumniId]
+    );
+    if (!rows.length) return res.status(404).send("Alumni profile not found.");
+    if (Number(rows[0].id) === Number(req.session.user.id)) return res.redirect("/profile");
+    const [senderRows] = await db.execute(
+      "SELECT full_name,email,degree,department,graduation_year,current_job,company,city,country FROM alumni WHERE id=? LIMIT 1",
+      [req.session.user.id]
+    );
+    if (!senderRows.length) return res.redirect("/signin");
+    res.render("alumni-profile", {
+      title: rows[0].full_name + " | Alumni Profile",
+      person: rows[0],
+      senderProfile: senderRows[0],
+      error: req.query.error ? "Your connection request could not be sent. Please try again." : null,
+      message: req.query.connected ? "Your connection request has been emailed successfully." : null
+    });
+  } catch (err) { next(err); }
+});
+
+// Send a personal introduction to the selected alumnus using the configured SMTP account.
+const connectionRequests = new Map();
+app.post("/alumni/:id/connect", auth, async (req, res, next) => {
+  try {
+    const alumniId = Number.parseInt(req.params.id, 10);
+    const message = String(req.body.message || "").trim().slice(0, 2000);
+    if (!Number.isInteger(alumniId) || alumniId < 1) return res.status(404).send("Alumni profile not found.");
+    if (!message || message.length < 10) {
+      return res.redirect("/alumni/" + alumniId + "?error=1#connect");
+    }
+    if (Number(alumniId) === Number(req.session.user.id)) return res.status(400).send("You cannot send a connection request to yourself.");
+    const throttleKey = String(req.session.user.id) + ":" + String(alumniId);
+    const lastSent = connectionRequests.get(throttleKey) || 0;
+    if (Date.now() - lastSent < 60 * 1000) {
+      return res.status(429).send("Please wait one minute before sending another request to this alumnus.");
+    }
+    const [recipientRows] = await db.execute(
+      "SELECT id,full_name,email FROM alumni WHERE id=? LIMIT 1",
+      [alumniId]
+    );
+    if (!recipientRows.length) return res.status(404).send("Alumni profile not found.");
+    const [senderRows] = await db.execute(
+      "SELECT id,full_name,email,degree,department,graduation_year,current_job,company,city,country FROM alumni WHERE id=? LIMIT 1",
+      [req.session.user.id]
+    );
+    if (!senderRows.length) return res.status(401).send("Your account could not be verified. Please sign in again.");
+    const recipient = recipientRows[0];
+    const sender = senderRows[0];
+    const safeMessage = escapeHtml(message).replace(/\r?\n/g, "<br>");
+    const senderRoleLine = [sender.current_job, sender.company].filter(Boolean).join(" at ") || "Not provided";
+    const senderLocationLine = [sender.city, sender.country].filter(Boolean).join(", ") || "Not provided";
+    const senderEducationLine = [sender.degree, sender.department].filter(Boolean).join(" · ") || sender.department || "Not provided";
+    await sendMail({
+      to: recipient.email,
+      replyTo: sender.email,
+      subject: "Alumni Connect: " + sender.full_name + " would like to connect",
+      text: "Hello " + recipient.full_name + ",\\n\\n" +
+        sender.full_name + " (" + sender.email + ") would like to connect with you through Alumni Connect.\\n\\n" +
+        "ABOUT THE PERSON CONTACTING YOU\\n" +
+        "Current role: " + senderRoleLine + "\\n" +
+        "Education: " + senderEducationLine + "\\n" +
+        "Graduation year: " + (sender.graduation_year || "Not provided") + "\\n" +
+        "Location: " + senderLocationLine + "\\n\\n" +
+        "PERSONAL MESSAGE\\n" + message + "\\n\\n" +
+        "You can reply directly to this email to contact " + sender.full_name + ".",
+      html: "<div style='font-family:Arial,sans-serif;max-width:620px;margin:auto;color:#243447;line-height:1.6'>" +
+        "<h2 style='color:#17324d'>A new connection request</h2>" +
+        "<p>Hello " + escapeHtml(recipient.full_name) + ",</p>" +
+        "<p><strong>" + escapeHtml(sender.full_name) + "</strong> (" + escapeHtml(sender.email) + ") would like to connect with you through Alumni Connect.</p>" +
+        "<div style='padding:16px;background:#f5f7fa;border-left:4px solid #c49a5a;margin:20px 0'>" +
+        "<h3 style='margin:0 0 10px;color:#17324d'>About the person contacting you</h3>" +
+        "<p style='margin:4px 0'><strong>Current role:</strong> " + escapeHtml(senderRoleLine) + "</p>" +
+        "<p style='margin:4px 0'><strong>Education:</strong> " + escapeHtml(senderEducationLine) + "</p>" +
+        "<p style='margin:4px 0'><strong>Graduation year:</strong> " + escapeHtml(sender.graduation_year || "Not provided") + "</p>" +
+        "<p style='margin:4px 0'><strong>Location:</strong> " + escapeHtml(senderLocationLine) + "</p></div>" +
+        "<h3 style='color:#17324d'>Personal message from " + escapeHtml(sender.full_name) + "</h3>" +
+        "<p style='padding:16px;background:#fbfaf7;border:1px solid #eee5d8'>" + safeMessage + "</p>" +
+        "<p>You can reply directly to this email to contact " + escapeHtml(sender.full_name) + ".</p>" +
+        "<p style='color:#7b8794;font-size:12px'>Sent via Alumni Connect</p></div>"
+    });
+    connectionRequests.set(throttleKey, Date.now());
+    res.redirect("/alumni/" + alumniId + "?connected=1#connect");
+  } catch (err) {
+    if (err.message && err.message.includes("SMTP is not configured")) {
+      return res.redirect("/alumni/" + req.params.id + "?error=1#connect");
+    }
+    console.error("Alumni connection email failed:", err.message);
+    return res.redirect("/alumni/" + req.params.id + "?error=1#connect");
+  }
 });
 
 app.get("/profile", auth, async (req, res, next) => {
@@ -434,25 +570,32 @@ app.get("/admin/events/:id/edit", adminOnly, async (req, res, next) => {
   try { const [rows] = await db.execute("SELECT * FROM events WHERE id=?", [req.params.id]); if (!rows.length) return res.status(404).send("Event not found."); res.render("admin-listing-form", { title: "Edit Event", kind: "event", item: rows[0] }); }
   catch (err) { next(err); }
 });
-app.post("/admin/events", adminOnly, async (req, res, next) => {
+app.post("/admin/events", adminOnly, listingUpload.single("image"), verifyCsrf, async (req, res, next) => {
   try {
     const p = req.body;
-    if (!p.title?.trim() || !p.event_date || !p.location?.trim() || Number.isNaN(Date.parse(p.event_date))) return res.status(400).send("Enter a valid event title, date and location.");
-    await db.execute("INSERT INTO events(title,event_date,location,description) VALUES(?,?,?,?)", [p.title.trim(), p.event_date, p.location.trim(), p.description || null]);
+    if (!p.title?.trim() || !p.event_date || !p.location?.trim() || Number.isNaN(Date.parse(p.event_date))) { if (req.file) await fs.promises.unlink(req.file.path).catch(() => {}); return res.status(400).send("Enter a valid event title, date and location."); }
+    if (req.file && !(await validateImage(req.file))) { await fs.promises.unlink(req.file.path).catch(() => {}); return res.status(400).send("Upload a valid JPG, PNG or WEBP image."); }
+    const image = req.file ? "/uploads/listings/" + req.file.filename : null;
+    await db.execute("INSERT INTO events(title,event_date,location,description,image_url) VALUES(?,?,?,?,?)", [p.title.trim(), p.event_date, p.location.trim(), p.description || null, image]);
     res.redirect("/admin");
-  } catch (err) { next(err); }
+  } catch (err) { if (req.file) await fs.promises.unlink(req.file.path).catch(() => {}); next(err); }
 });
-app.post("/admin/events/:id", adminOnly, async (req, res, next) => {
+app.post("/admin/events/:id", adminOnly, listingUpload.single("image"), verifyCsrf, async (req, res, next) => {
   try {
     const p = req.body;
-    if (!p.title?.trim() || !p.event_date || !p.location?.trim() || Number.isNaN(Date.parse(p.event_date))) return res.status(400).send("Enter a valid event title, date and location.");
-    const [result] = await db.execute("UPDATE events SET title=?,event_date=?,location=?,description=? WHERE id=?", [p.title.trim(), p.event_date, p.location.trim(), p.description || null, req.params.id]);
-    if (!result.affectedRows) return res.status(404).send("Event not found.");
+    if (!p.title?.trim() || !p.event_date || !p.location?.trim() || Number.isNaN(Date.parse(p.event_date))) { if (req.file) await fs.promises.unlink(req.file.path).catch(() => {}); return res.status(400).send("Enter a valid event title, date and location."); }
+    if (req.file && !(await validateImage(req.file))) { await fs.promises.unlink(req.file.path).catch(() => {}); return res.status(400).send("Upload a valid JPG, PNG or WEBP image."); }
+    const [existing] = await db.execute("SELECT image_url FROM events WHERE id=?", [req.params.id]);
+    if (!existing.length) { if (req.file) await fs.promises.unlink(req.file.path).catch(() => {}); return res.status(404).send("Event not found."); }
+    const image = req.file ? "/uploads/listings/" + req.file.filename : existing[0].image_url;
+    await db.execute("UPDATE events SET title=?,event_date=?,location=?,description=?,image_url=? WHERE id=?", [p.title.trim(), p.event_date, p.location.trim(), p.description || null, image, req.params.id]);
+    if (req.file) removeListingImage(existing[0].image_url);
     res.redirect("/admin");
-  } catch (err) { next(err); }
+  } catch (err) { if (req.file) await fs.promises.unlink(req.file.path).catch(() => {}); next(err); }
 });
+
 app.post("/admin/events/:id/delete", adminOnly, async (req, res, next) => {
-  try { await db.execute("DELETE FROM events WHERE id=?", [req.params.id]); res.redirect("/admin"); }
+  try { const [rows] = await db.execute("SELECT image_url FROM events WHERE id=?", [req.params.id]); await db.execute("DELETE FROM events WHERE id=?", [req.params.id]); if (rows.length) removeListingImage(rows[0].image_url); res.redirect("/admin"); }
   catch (err) { next(err); }
 });
 
@@ -461,25 +604,32 @@ app.get("/admin/jobs/:id/edit", adminOnly, async (req, res, next) => {
   try { const [rows] = await db.execute("SELECT * FROM jobs WHERE id=?", [req.params.id]); if (!rows.length) return res.status(404).send("Job not found."); res.render("admin-listing-form", { title: "Edit Job", kind: "job", item: rows[0] }); }
   catch (err) { next(err); }
 });
-app.post("/admin/jobs", adminOnly, async (req, res, next) => {
+app.post("/admin/jobs", adminOnly, listingUpload.single("image"), verifyCsrf, async (req, res, next) => {
   try {
     const p = req.body;
-    if (!p.title?.trim() || !p.company?.trim()) return res.status(400).send("Job title and company are required.");
-    await db.execute("INSERT INTO jobs(title,company,location,description) VALUES(?,?,?,?)", [p.title.trim(), p.company.trim(), p.location || null, p.description || null]);
+    if (!p.title?.trim() || !p.company?.trim()) { if (req.file) await fs.promises.unlink(req.file.path).catch(() => {}); return res.status(400).send("Job title and company are required."); }
+    if (req.file && !(await validateImage(req.file))) { await fs.promises.unlink(req.file.path).catch(() => {}); return res.status(400).send("Upload a valid JPG, PNG or WEBP image."); }
+    const image = req.file ? "/uploads/listings/" + req.file.filename : null;
+    await db.execute("INSERT INTO jobs(title,company,location,description,image_url) VALUES(?,?,?,?,?)", [p.title.trim(), p.company.trim(), p.location || null, p.description || null, image]);
     res.redirect("/admin");
-  } catch (err) { next(err); }
+  } catch (err) { if (req.file) await fs.promises.unlink(req.file.path).catch(() => {}); next(err); }
 });
-app.post("/admin/jobs/:id", adminOnly, async (req, res, next) => {
+app.post("/admin/jobs/:id", adminOnly, listingUpload.single("image"), verifyCsrf, async (req, res, next) => {
   try {
     const p = req.body;
-    if (!p.title?.trim() || !p.company?.trim()) return res.status(400).send("Job title and company are required.");
-    const [result] = await db.execute("UPDATE jobs SET title=?,company=?,location=?,description=? WHERE id=?", [p.title.trim(), p.company.trim(), p.location || null, p.description || null, req.params.id]);
-    if (!result.affectedRows) return res.status(404).send("Job not found.");
+    if (!p.title?.trim() || !p.company?.trim()) { if (req.file) await fs.promises.unlink(req.file.path).catch(() => {}); return res.status(400).send("Job title and company are required."); }
+    if (req.file && !(await validateImage(req.file))) { await fs.promises.unlink(req.file.path).catch(() => {}); return res.status(400).send("Upload a valid JPG, PNG or WEBP image."); }
+    const [existing] = await db.execute("SELECT image_url FROM jobs WHERE id=?", [req.params.id]);
+    if (!existing.length) { if (req.file) await fs.promises.unlink(req.file.path).catch(() => {}); return res.status(404).send("Job not found."); }
+    const image = req.file ? "/uploads/listings/" + req.file.filename : existing[0].image_url;
+    await db.execute("UPDATE jobs SET title=?,company=?,location=?,description=?,image_url=? WHERE id=?", [p.title.trim(), p.company.trim(), p.location || null, p.description || null, image, req.params.id]);
+    if (req.file) removeListingImage(existing[0].image_url);
     res.redirect("/admin");
-  } catch (err) { next(err); }
+  } catch (err) { if (req.file) await fs.promises.unlink(req.file.path).catch(() => {}); next(err); }
 });
+
 app.post("/admin/jobs/:id/delete", adminOnly, async (req, res, next) => {
-  try { await db.execute("DELETE FROM jobs WHERE id=?", [req.params.id]); res.redirect("/admin"); }
+  try { const [rows] = await db.execute("SELECT image_url FROM jobs WHERE id=?", [req.params.id]); await db.execute("DELETE FROM jobs WHERE id=?", [req.params.id]); if (rows.length) removeListingImage(rows[0].image_url); res.redirect("/admin"); }
   catch (err) { next(err); }
 });
 
@@ -496,6 +646,10 @@ app.use((req, res) => res.status(404).send("Page not found."));
 async function start() {
   try {
     await db.query("SELECT 1");
+    for (const table of ["events", "jobs"]) {
+      const [columns] = await db.execute("SELECT COUNT(*) AS total FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = 'image_url'", [table]);
+      if (!columns[0].total) await db.query("ALTER TABLE " + table + " ADD COLUMN image_url VARCHAR(500) NULL");
+    }
     await db.query("CREATE TABLE IF NOT EXISTS app_sessions (session_id VARCHAR(128) NOT NULL PRIMARY KEY, data MEDIUMTEXT NOT NULL, expires_at DATETIME NOT NULL, INDEX idx_app_sessions_expiry (expires_at))");
     await db.query("DELETE FROM app_sessions WHERE expires_at <= NOW()");
     console.log("Connected to MySQL.");

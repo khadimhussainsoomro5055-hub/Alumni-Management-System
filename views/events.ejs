@@ -8,7 +8,7 @@
 </head>
 <body>
   <header class="app-header">
-    <a class="logo" href="/dashboard">Alumni Connect</a>
+    <a class="logo" href="/dashboard"><img class="site-logo" src="/images/iba-alumni-connect.svg" alt="IBA Alumni Connect"></a>
     <div class="header-right">
       <span class="header-name"><%= sessionUser ? sessionUser.full_name : "" %></span>
 
@@ -36,8 +36,7 @@
 
       <div class="sidebar-title">Account</div>
       <a class="nav-item" href="/profile">My Profile</a>
-      <form action="/logout" method="POST">
-<input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="nav-item" type="submit">Logout</button></form>
+
     </aside>
 
     <main class="main">
@@ -49,14 +48,15 @@
       </div>
 
       <% if (events.length) { %>
-      <div class="events-grid">
+      <div class="events-grid listing-page-grid">
         <% events.forEach(e => { %>
-          <div class="panel">
-            <div class="card-title"><%= e.title %></div>
-            <p><strong>Date:</strong> <%= new Date(e.event_date).toLocaleString() %></p>
-            <p><strong>Location:</strong> <%= e.location %></p>
-            <p class="muted"><%= e.description %></p>
-          </div>
+          <article class="listing-card">
+            <div class="listing-image-wrap">
+              <% if (e.image_url) { %><img src="<%= e.image_url %>" alt="<%= e.title %>" loading="lazy"><% } else { %><div class="listing-image-placeholder event-placeholder"><span>ALUMNI COMMUNITY EVENT</span></div><% } %>
+              <div class="listing-date"><strong><%= new Date(e.event_date).toLocaleDateString("en", {day:"2-digit"}) %></strong><span><%= new Date(e.event_date).toLocaleDateString("en", {month:"short"}) %></span></div>
+            </div>
+            <div class="listing-card-body"><div class="listing-eyebrow">COMMUNITY EVENT</div><h2><%= e.title %></h2><p class="listing-meta"><span>⌖</span> <%= e.location %></p><p class="listing-meta"><span>◷</span> <%= new Date(e.event_date).toLocaleString() %></p><% if (e.description) { %><p class="listing-description"><%= e.description %></p><% } %></div>
+          </article>
         <% }) %>
       </div>
       <% } else { %>
@@ -64,5 +64,7 @@
       <% } %>
     </main>
   </div>
+
+<footer class="app-footer"><a href="/" class="app-footer-brand">IBA Alumni Connect</a><span>Sukkur IBA alumni, connected beyond graduation.</span><div class="app-footer-links"><a href="/contact">Contact</a><a href="/dashboard">Dashboard</a></div><small>© <%= new Date().getFullYear() %> Alumni Connect</small></footer>
 </body>
 </html>

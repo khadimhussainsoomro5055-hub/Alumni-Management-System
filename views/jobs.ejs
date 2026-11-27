@@ -8,7 +8,7 @@
 </head>
 <body>
   <header class="app-header">
-    <a class="logo" href="/dashboard">Alumni Connect</a>
+    <a class="logo" href="/dashboard"><img class="site-logo" src="/images/iba-alumni-connect.svg" alt="IBA Alumni Connect"></a>
     <div class="header-right">
       <span class="header-name"><%= sessionUser ? sessionUser.full_name : "" %></span>
 
@@ -36,8 +36,7 @@
 
       <div class="sidebar-title">Account</div>
       <a class="nav-item" href="/profile">My Profile</a>
-      <form action="/logout" method="POST">
-<input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="nav-item" type="submit">Logout</button></form>
+
     </aside>
 
     <main class="main">
@@ -49,14 +48,15 @@
       </div>
 
       <% if (jobs.length) { %>
-      <div class="jobs-grid">
+      <div class="jobs-grid listing-page-grid">
         <% jobs.forEach(j => { %>
-          <div class="panel">
-            <div class="card-title"><%= j.title %></div>
-            <p><strong><%= j.company %></strong></p>
-            <p><strong>Location:</strong> <%= j.location || "Not specified" %></p>
-            <p class="muted"><%= j.description %></p>
-          </div>
+          <article class="listing-card job-card">
+            <div class="listing-image-wrap">
+              <% if (j.image_url) { %><img src="<%= j.image_url %>" alt="<%= j.title %>" loading="lazy"><% } else { %><div class="listing-image-placeholder job-placeholder"><span>CAREER OPPORTUNITY</span></div><% } %>
+              <span class="listing-type">JOB OPENING</span>
+            </div>
+            <div class="listing-card-body"><div class="listing-eyebrow">CAREER OPPORTUNITY</div><h2><%= j.title %></h2><p class="listing-company"><%= j.company %></p><p class="listing-meta"><span>⌖</span> <%= j.location || "Location not specified" %></p><% if (j.description) { %><p class="listing-description"><%= j.description %></p><% } %></div>
+          </article>
         <% }) %>
       </div>
       <% } else { %>
@@ -64,5 +64,7 @@
       <% } %>
     </main>
   </div>
+
+<footer class="app-footer"><a href="/" class="app-footer-brand">IBA Alumni Connect</a><span>Sukkur IBA alumni, connected beyond graduation.</span><div class="app-footer-links"><a href="/contact">Contact</a><a href="/dashboard">Dashboard</a></div><small>© <%= new Date().getFullYear() %> Alumni Connect</small></footer>
 </body>
 </html>

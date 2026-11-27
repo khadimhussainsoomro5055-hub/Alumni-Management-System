@@ -8,7 +8,7 @@
 </head>
 <body>
   <header class="app-header">
-    <a class="logo" href="/dashboard">Alumni Connect</a>
+    <a class="logo" href="/dashboard"><img class="site-logo" src="/images/iba-alumni-connect.svg" alt="IBA Alumni Connect"></a>
     <div class="header-right">
       <span class="header-name"><%= sessionUser ? sessionUser.full_name : "" %></span>
 
@@ -36,15 +36,14 @@
 
       <div class="sidebar-title">Account</div>
       <a class="nav-item" href="/profile">My Profile</a>
-      <form action="/logout" method="POST">
-<input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="nav-item" type="submit">Logout</button></form>
+
     </aside>
 
     <main class="main">
       <div class="page-head">
         <div>
           <h1>Alumni Directory</h1>
-          <p class="muted">Find and connect with fellow alumni.</p>
+          <p class="muted">Discover graduates, explore their professional journeys and build meaningful connections.</p>
         </div>
       </div>
 
@@ -56,22 +55,25 @@
       <% if (alumni.length) { %>
       <div class="alumni-grid">
         <% alumni.forEach(a => { %>
-          <div class="alumni-card">
-            <% if (a.profile_photo) { %>
-              <img class="avatar" src="<%= a.profile_photo %>">
-            <% } else { %>
-              <div class="avatar-fallback">
-                <%= a.full_name.charAt(0).toUpperCase() %>
+          <article class="alumni-card alumni-directory-card">
+            <a class="alumni-card-main" href="/alumni/<%= a.id %>" aria-label="View <%= a.full_name %>'s profile">
+              <% if (a.profile_photo) { %>
+                <img class="avatar alumni-card-avatar" src="<%= a.profile_photo %>" alt="<%= a.full_name %>" loading="lazy">
+              <% } else { %>
+                <div class="avatar-fallback alumni-card-avatar"><%= a.full_name.charAt(0).toUpperCase() %></div>
+              <% } %>
+              <div class="alumni-card-copy">
+                <h2><%= a.full_name %></h2>
+                <div class="designation"><%= a.current_job || "Alumni member" %><% if (a.company) { %> <span>at</span> <%= a.company %><% } %></div>
+                <p class="alumni-card-department"><%= [a.degree, a.department].filter(Boolean).join(" · ") %></p>
+                <p class="alumni-card-meta"><span>Class of <%= a.graduation_year %></span><% if (a.city || a.country) { %><span><%= [a.city, a.country].filter(Boolean).join(", ") %></span><% } %></p>
               </div>
-            <% } %>
-
-            <h2><%= a.full_name %></h2>
-            <div class="designation"><%= a.current_job || "Alumni" %></div>
-            <p><strong><%= a.department %></strong></p>
-            <p>Batch: <%= a.graduation_year %></p>
-            <p><%= a.city || "Location not provided" %></p>
-            <a class="btn" href="mailto:<%= a.email %>">Contact</a>
-          </div>
+            </a>
+            <div class="alumni-card-actions">
+              <a class="btn light" href="/alumni/<%= a.id %>">View Profile</a>
+              <a class="btn" href="/alumni/<%= a.id %>#connect">Connect</a>
+            </div>
+          </article>
         <% }) %>
       </div>
       <% } else { %>
@@ -86,5 +88,7 @@
       <% } %>
     </main>
   </div>
+
+<footer class="app-footer"><a href="/" class="app-footer-brand">IBA Alumni Connect</a><span>Sukkur IBA alumni, connected beyond graduation.</span><div class="app-footer-links"><a href="/contact">Contact</a><a href="/dashboard">Dashboard</a></div><small>© <%= new Date().getFullYear() %> Alumni Connect</small></footer>
 </body>
 </html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="app-header">
+    <a class="logo" href="/dashboard"><img class="site-logo" src="/images/iba-alumni-connect.svg" alt="IBA Alumni Connect"></a>
+    <div class="header-right">
+      <span class="header-name"><%= sessionUser.full_name %></span>
+      <% if (sessionUser.profile_photo) { %><img class="header-avatar" src="<%= sessionUser.profile_photo %>" alt=""><% } else { %><div class="header-avatar-fallback"><%= sessionUser.full_name.charAt(0).toUpperCase() %></div><% } %>
+      <form action="/logout" method="POST"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="logout" type="submit">Logout</button></form>
+    </div>
+  </header>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-title">Main Menu</div>
+      <% if (sessionUser.role === "admin") { %><a class="nav-item" href="/admin">Admin Dashboard</a><% } %>
+      <a class="nav-item" href="/dashboard">Dashboard</a>
+      <a class="nav-item active" href="/alumni">Alumni Directory</a>
+      <a class="nav-item" href="/events">Events</a>
+      <a class="nav-item" href="/jobs">Jobs &amp; Opportunities</a>
+      <div class="sidebar-title">Account</div><a class="nav-item" href="/profile">My Profile</a>
+    </aside>
+    <main class="main alumni-profile-main">
+      <div class="profile-back"><a class="text-link" href="/alumni">← Back to alumni directory</a></div>
+      <section class="alumni-profile-hero">
+        <div class="alumni-profile-identity">
+          <% if (person.profile_photo) { %><img class="alumni-profile-avatar" src="<%= person.profile_photo %>" alt="<%= person.full_name %>"><% } else { %><div class="alumni-profile-avatar alumni-profile-avatar-fallback"><%= person.full_name.charAt(0).toUpperCase() %></div><% } %>
+          <div class="alumni-profile-name">
+            <span class="profile-eyebrow">ALUMNI COMMUNITY MEMBER</span>
+            <h1><%= person.full_name %></h1>
+            <p><%= [person.degree, person.department].filter(Boolean).join(" · ") || "Alumni member" %></p>
+            <span class="profile-batch">Class of <%= person.graduation_year %></span>
+          </div>
+        </div>
+        <a class="btn gold" href="#connect">Connect with <%= person.full_name.split(" ")[0] %> <span aria-hidden="true">→</span></a>
+      </section>
+
+      <div class="alumni-profile-layout">
+        <section class="profile-detail-panel">
+          <div class="profile-panel-heading"><span class="section-kicker">PROFESSIONAL JOURNEY</span><h2>About this alumnus</h2></div>
+          <div class="professional-highlight">
+            <div class="professional-icon">↗</div>
+            <div><span> CURRENT POSITION</span><h3><%= person.current_job || "Professional role not added yet" %></h3><p><%= person.company || "Company not provided" %></p></div>
+          </div>
+          <div class="profile-facts">
+            <div class="profile-fact"><span>DEGREE</span><strong><%= person.degree || "Not provided" %></strong></div>
+            <div class="profile-fact"><span>DEPARTMENT</span><strong><%= person.department || "Not provided" %></strong></div>
+            <div class="profile-fact"><span>GRADUATION YEAR</span><strong><%= person.graduation_year || "Not provided" %></strong></div>
+            <div class="profile-fact"><span>LOCATION</span><strong><%= [person.city, person.country].filter(Boolean).join(", ") || "Not provided" %></strong></div>
+          </div>
+          <div class="profile-note">Profile information is provided by the alumnus and can be updated from their account settings.</div>
+        </section>
+
+        <aside class="connect-panel" id="connect">
+          <span class="section-kicker">BUILD YOUR NETWORK</span>
+          <h2>Start a conversation</h2>
+          <p class="connect-intro">Introduce yourself and tell <%= person.full_name.split(" ")[0] %> why you'd like to connect.</p>
+          <% if (message) { %><div class="alert success"><%= message %></div><% } %>
+          <% if (error) { %><div class="alert error"><%= error %> Check that SMTP is configured correctly, then try again.</div><% } %>
+          <div class="sender-summary">
+            <div class="sender-avatar"><%= senderProfile.full_name.charAt(0).toUpperCase() %></div>
+            <div class="sender-summary-details">
+              <strong><%= senderProfile.full_name %></strong>
+              <span><%= senderProfile.email %></span>
+              <span><%= [senderProfile.current_job, senderProfile.company].filter(Boolean).join(" at ") || "Current role not added" %></span>
+              <span><%= [senderProfile.degree, senderProfile.department].filter(Boolean).join(" · ") || "Education details not added" %><% if (senderProfile.graduation_year) { %> · Class of <%= senderProfile.graduation_year %><% } %></span>
+              <span><%= [senderProfile.city, senderProfile.country].filter(Boolean).join(", ") || "Location not added" %></span>
+            </div>
+          </div>
+          <form action="/alumni/<%= person.id %>/connect" method="POST" class="connect-form">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <label for="connectMessage">Your message</label>
+            <textarea id="connectMessage" name="message" rows="6" minlength="10" maxlength="2000" placeholder="Hi <%= person.full_name.split(" ")[0] %>, I'd like to connect with you because..." required></textarea>
+            <div class="message-help">Your name and registered email are included automatically. The recipient can reply directly to your email.</div>
+            <button class="btn gold connect-submit" type="submit">Send connection request <span>→</span></button>
+          </form>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+<footer class="app-footer"><a href="/" class="app-footer-brand">IBA Alumni Connect</a><span>Sukkur IBA alumni, connected beyond graduation.</span><div class="app-footer-links"><a href="/contact">Contact</a><a href="/dashboard">Dashboard</a></div><small>© <%= new Date().getFullYear() %> Alumni Connect</small></footer>
+</body>
+</html>
