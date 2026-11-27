@@ -528,3 +528,7 @@ td { font-size:13px; }
   .alumni-profile-hero > .btn { width:100%; }
   .profile-facts { grid-template-columns:1fr; }
 }
+
+/* Match the reference directory's spacious two-column card layout on desktop. */
+.alumni-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+@media(max-width:760px) { .alumni-grid { grid-template-columns:1fr; } }
