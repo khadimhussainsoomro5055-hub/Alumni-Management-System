@@ -265,7 +265,11 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: .6; }
 .landing-join { display:inline-flex; align-items:center; gap:12px; padding:12px 17px; border-radius:4px; background:var(--navy-950); color:#fff; font-size:12px; font-weight:700; }
 .landing-join:hover { background:var(--gold-600); color:#fff; }
 .landing-hero { position:relative; min-height:610px; height:min(72vh,760px); overflow:hidden; background:#172f46; color:#fff; }
-.hero-photo { display:none; }
+.hero-photo {
+    background-image: url("/images/iba-administration-block.jpg");
+    background-size: cover;
+    background-position: center 78%;
+} 
 .hero-shade { display:none; }
 .hero-content { position:relative; z-index:1; width:min(760px,90%); padding:clamp(82px,11vw,150px) 0 70px clamp(24px,10vw,145px); }
 .eyebrow,.section-kicker { color:#c9a36d; font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; }
