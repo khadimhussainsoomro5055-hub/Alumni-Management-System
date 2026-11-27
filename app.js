@@ -109,7 +109,7 @@ function verifyCsrf(req, res, next) {
 app.use((req, res, next) => {
   if (!req.session.csrfToken) req.session.csrfToken = crypto.randomBytes(32).toString("hex");
   res.locals.csrfToken = req.session.csrfToken;
-  if (req.method === "POST" && req.path !== "/profile") return verifyCsrf(req, res, next);
+  if (req.method === "POST" && req.path !== "/profile" && !/^\/admin\/(events|jobs)(\/\d+)?$/.test(req.path)) return verifyCsrf(req, res, next);
   next();
 });
 const loginAttempts = new Map();
@@ -127,13 +127,26 @@ function authLimiter(req, res, next) {
 }
 
 const uploadDir = path.join(__dirname, "public", "uploads", "profiles");
+const listingUploadDir = path.join(__dirname, "public", "uploads", "listings");
 fs.mkdirSync(uploadDir, { recursive: true });
+fs.mkdirSync(listingUploadDir, { recursive: true });
 const upload = multer({
   storage: multer.diskStorage({
     destination: (_, __, cb) => cb(null, uploadDir),
     filename: (_, file, cb) => cb(null, "profile-" + Date.now() + "-" + Math.round(Math.random() * 1e9) + path.extname(file.originalname).toLowerCase())
   }),
   limits: { fileSize: 2 * 1024 * 1024, files: 1 },
+  fileFilter: (_, file, cb) => {
+    if (["image/jpeg", "image/png", "image/webp"].includes(file.mimetype)) return cb(null, true);
+    cb(new Error("Only JPG, PNG and WEBP images are allowed."));
+  }
+});
+const listingUpload = multer({
+  storage: multer.diskStorage({
+    destination: (_, __, cb) => cb(null, listingUploadDir),
+    filename: (_, file, cb) => cb(null, "listing-" + Date.now() + "-" + Math.round(Math.random() * 1e9) + path.extname(file.originalname).toLowerCase())
+  }),
+  limits: { fileSize: 4 * 1024 * 1024, files: 1 },
   fileFilter: (_, file, cb) => {
     if (["image/jpeg", "image/png", "image/webp"].includes(file.mimetype)) return cb(null, true);
     cb(new Error("Only JPG, PNG and WEBP images are allowed."));
@@ -155,6 +168,11 @@ function escapeHtml(value) {
 function validYear(value) {
   const year = Number(value);
   return Number.isInteger(year) && year >= 1950 && year <= new Date().getFullYear() + 10;
+}
+function removeListingImage(image) {
+  if (!image || !image.startsWith("/uploads/listings/")) return;
+  const fullPath = path.join(listingUploadDir, path.basename(image));
+  if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
 }
 function removePhoto(photo) {
   if (!photo || !photo.startsWith("/uploads/profiles/")) return;
@@ -192,13 +210,13 @@ app.get("/", async (req, res, next) => {
         (SELECT COUNT(*) FROM jobs) AS total_jobs
     `);
     const [recentAlumni] = await db.query(
-      "SELECT full_name, department, graduation_year, current_job, company, city, profile_photo FROM alumni ORDER BY created_at DESC, id DESC LIMIT 4"
+      "SELECT full_name, department, graduation_year, current_job, company, city, profile_photo FROM alumni ORDER BY created_at DESC, id DESC LIMIT 6"
     );
     const [upcomingEvents] = await db.query(
-      "SELECT title, event_date, location, description FROM events WHERE event_date >= NOW() ORDER BY event_date ASC LIMIT 3"
+      "SELECT title, event_date, location, description, image_url FROM events WHERE event_date >= NOW() ORDER BY event_date ASC LIMIT 4"
     );
     const [latestJobs] = await db.query(
-      "SELECT title, company, location, description, posted_at FROM jobs ORDER BY posted_at DESC LIMIT 3"
+      "SELECT title, company, location, description, posted_at, image_url FROM jobs ORDER BY posted_at DESC LIMIT 4"
     );
     res.render("landing", { title: "Alumni Connect | Stay Connected", stats, recentAlumni, upcomingEvents, latestJobs });
   } catch (err) { next(err); }
@@ -552,25 +570,32 @@ app.get("/admin/events/:id/edit", adminOnly, async (req, res, next) => {
   try { const [rows] = await db.execute("SELECT * FROM events WHERE id=?", [req.params.id]); if (!rows.length) return res.status(404).send("Event not found."); res.render("admin-listing-form", { title: "Edit Event", kind: "event", item: rows[0] }); }
   catch (err) { next(err); }
 });
-app.post("/admin/events", adminOnly, async (req, res, next) => {
+app.post("/admin/events", adminOnly, listingUpload.single("image"), verifyCsrf, async (req, res, next) => {
   try {
     const p = req.body;
-    if (!p.title?.trim() || !p.event_date || !p.location?.trim() || Number.isNaN(Date.parse(p.event_date))) return res.status(400).send("Enter a valid event title, date and location.");
-    await db.execute("INSERT INTO events(title,event_date,location,description) VALUES(?,?,?,?)", [p.title.trim(), p.event_date, p.location.trim(), p.description || null]);
+    if (!p.title?.trim() || !p.event_date || !p.location?.trim() || Number.isNaN(Date.parse(p.event_date))) { if (req.file) await fs.promises.unlink(req.file.path).catch(() => {}); return res.status(400).send("Enter a valid event title, date and location."); }
+    if (req.file && !(await validateImage(req.file))) { await fs.promises.unlink(req.file.path).catch(() => {}); return res.status(400).send("Upload a valid JPG, PNG or WEBP image."); }
+    const image = req.file ? "/uploads/listings/" + req.file.filename : null;
+    await db.execute("INSERT INTO events(title,event_date,location,description,image_url) VALUES(?,?,?,?,?)", [p.title.trim(), p.event_date, p.location.trim(), p.description || null, image]);
     res.redirect("/admin");
-  } catch (err) { next(err); }
+  } catch (err) { if (req.file) await fs.promises.unlink(req.file.path).catch(() => {}); next(err); }
 });
-app.post("/admin/events/:id", adminOnly, async (req, res, next) => {
+app.post("/admin/events/:id", adminOnly, listingUpload.single("image"), verifyCsrf, async (req, res, next) => {
   try {
     const p = req.body;
-    if (!p.title?.trim() || !p.event_date || !p.location?.trim() || Number.isNaN(Date.parse(p.event_date))) return res.status(400).send("Enter a valid event title, date and location.");
-    const [result] = await db.execute("UPDATE events SET title=?,event_date=?,location=?,description=? WHERE id=?", [p.title.trim(), p.event_date, p.location.trim(), p.description || null, req.params.id]);
-    if (!result.affectedRows) return res.status(404).send("Event not found.");
+    if (!p.title?.trim() || !p.event_date || !p.location?.trim() || Number.isNaN(Date.parse(p.event_date))) { if (req.file) await fs.promises.unlink(req.file.path).catch(() => {}); return res.status(400).send("Enter a valid event title, date and location."); }
+    if (req.file && !(await validateImage(req.file))) { await fs.promises.unlink(req.file.path).catch(() => {}); return res.status(400).send("Upload a valid JPG, PNG or WEBP image."); }
+    const [existing] = await db.execute("SELECT image_url FROM events WHERE id=?", [req.params.id]);
+    if (!existing.length) { if (req.file) await fs.promises.unlink(req.file.path).catch(() => {}); return res.status(404).send("Event not found."); }
+    const image = req.file ? "/uploads/listings/" + req.file.filename : existing[0].image_url;
+    await db.execute("UPDATE events SET title=?,event_date=?,location=?,description=?,image_url=? WHERE id=?", [p.title.trim(), p.event_date, p.location.trim(), p.description || null, image, req.params.id]);
+    if (req.file) removeListingImage(existing[0].image_url);
     res.redirect("/admin");
-  } catch (err) { next(err); }
+  } catch (err) { if (req.file) await fs.promises.unlink(req.file.path).catch(() => {}); next(err); }
 });
+
 app.post("/admin/events/:id/delete", adminOnly, async (req, res, next) => {
-  try { await db.execute("DELETE FROM events WHERE id=?", [req.params.id]); res.redirect("/admin"); }
+  try { const [rows] = await db.execute("SELECT image_url FROM events WHERE id=?", [req.params.id]); await db.execute("DELETE FROM events WHERE id=?", [req.params.id]); if (rows.length) removeListingImage(rows[0].image_url); res.redirect("/admin"); }
   catch (err) { next(err); }
 });
 
@@ -579,25 +604,32 @@ app.get("/admin/jobs/:id/edit", adminOnly, async (req, res, next) => {
   try { const [rows] = await db.execute("SELECT * FROM jobs WHERE id=?", [req.params.id]); if (!rows.length) return res.status(404).send("Job not found."); res.render("admin-listing-form", { title: "Edit Job", kind: "job", item: rows[0] }); }
   catch (err) { next(err); }
 });
-app.post("/admin/jobs", adminOnly, async (req, res, next) => {
+app.post("/admin/jobs", adminOnly, listingUpload.single("image"), verifyCsrf, async (req, res, next) => {
   try {
     const p = req.body;
-    if (!p.title?.trim() || !p.company?.trim()) return res.status(400).send("Job title and company are required.");
-    await db.execute("INSERT INTO jobs(title,company,location,description) VALUES(?,?,?,?)", [p.title.trim(), p.company.trim(), p.location || null, p.description || null]);
+    if (!p.title?.trim() || !p.company?.trim()) { if (req.file) await fs.promises.unlink(req.file.path).catch(() => {}); return res.status(400).send("Job title and company are required."); }
+    if (req.file && !(await validateImage(req.file))) { await fs.promises.unlink(req.file.path).catch(() => {}); return res.status(400).send("Upload a valid JPG, PNG or WEBP image."); }
+    const image = req.file ? "/uploads/listings/" + req.file.filename : null;
+    await db.execute("INSERT INTO jobs(title,company,location,description,image_url) VALUES(?,?,?,?,?)", [p.title.trim(), p.company.trim(), p.location || null, p.description || null, image]);
     res.redirect("/admin");
-  } catch (err) { next(err); }
+  } catch (err) { if (req.file) await fs.promises.unlink(req.file.path).catch(() => {}); next(err); }
 });
-app.post("/admin/jobs/:id", adminOnly, async (req, res, next) => {
+app.post("/admin/jobs/:id", adminOnly, listingUpload.single("image"), verifyCsrf, async (req, res, next) => {
   try {
     const p = req.body;
-    if (!p.title?.trim() || !p.company?.trim()) return res.status(400).send("Job title and company are required.");
-    const [result] = await db.execute("UPDATE jobs SET title=?,company=?,location=?,description=? WHERE id=?", [p.title.trim(), p.company.trim(), p.location || null, p.description || null, req.params.id]);
-    if (!result.affectedRows) return res.status(404).send("Job not found.");
+    if (!p.title?.trim() || !p.company?.trim()) { if (req.file) await fs.promises.unlink(req.file.path).catch(() => {}); return res.status(400).send("Job title and company are required."); }
+    if (req.file && !(await validateImage(req.file))) { await fs.promises.unlink(req.file.path).catch(() => {}); return res.status(400).send("Upload a valid JPG, PNG or WEBP image."); }
+    const [existing] = await db.execute("SELECT image_url FROM jobs WHERE id=?", [req.params.id]);
+    if (!existing.length) { if (req.file) await fs.promises.unlink(req.file.path).catch(() => {}); return res.status(404).send("Job not found."); }
+    const image = req.file ? "/uploads/listings/" + req.file.filename : existing[0].image_url;
+    await db.execute("UPDATE jobs SET title=?,company=?,location=?,description=?,image_url=? WHERE id=?", [p.title.trim(), p.company.trim(), p.location || null, p.description || null, image, req.params.id]);
+    if (req.file) removeListingImage(existing[0].image_url);
     res.redirect("/admin");
-  } catch (err) { next(err); }
+  } catch (err) { if (req.file) await fs.promises.unlink(req.file.path).catch(() => {}); next(err); }
 });
+
 app.post("/admin/jobs/:id/delete", adminOnly, async (req, res, next) => {
-  try { await db.execute("DELETE FROM jobs WHERE id=?", [req.params.id]); res.redirect("/admin"); }
+  try { const [rows] = await db.execute("SELECT image_url FROM jobs WHERE id=?", [req.params.id]); await db.execute("DELETE FROM jobs WHERE id=?", [req.params.id]); if (rows.length) removeListingImage(rows[0].image_url); res.redirect("/admin"); }
   catch (err) { next(err); }
 });
 
