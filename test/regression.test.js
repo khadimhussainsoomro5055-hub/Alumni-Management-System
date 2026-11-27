@@ -70,3 +70,11 @@ test("registration and contact forms are integrated with SMTP", () => {
   assert.match(contact, /name="_csrf"/);
   assert.match(signup, /action="\/signup"/);
 });
+test("shared UI has responsive footer and bounded authentication throttling", () => {
+  const css = read("public/style.css");
+  const app = read("app.js");
+  assert.match(css, /\.app-footer\s*\{/);
+  assert.match(css, /@media\(max-width:560px\)/);
+  assert.match(app, /loginAttempts\.size > 5000/);
+  assert.match(app, /windowMs = 15 \* 60 \* 1000/);
+});
