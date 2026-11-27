@@ -336,9 +336,15 @@ app.get("/alumni/:id", auth, async (req, res, next) => {
     );
     if (!rows.length) return res.status(404).send("Alumni profile not found.");
     if (Number(rows[0].id) === Number(req.session.user.id)) return res.redirect("/profile");
+    const [senderRows] = await db.execute(
+      "SELECT full_name,email,degree,department,graduation_year,current_job,company,city,country FROM alumni WHERE id=? LIMIT 1",
+      [req.session.user.id]
+    );
+    if (!senderRows.length) return res.redirect("/signin");
     res.render("alumni-profile", {
       title: rows[0].full_name + " | Alumni Profile",
       person: rows[0],
+      senderProfile: senderRows[0],
       error: req.query.error ? "Your connection request could not be sent. Please try again." : null,
       message: req.query.connected ? "Your connection request has been emailed successfully." : null
     });
