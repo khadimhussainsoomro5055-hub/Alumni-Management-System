@@ -21,7 +21,9 @@
       <% } %>
 
       <form action="/logout" method="POST" style="display:inline">
-<input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="logout" type="submit">Logout</button></form>
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="logout" type="submit">Logout</button>
+      </form>
     </div>
   </header>
 
@@ -41,7 +43,7 @@
 
     <main class="main listing-main jobs-main">
       <% if (featuredJob) { %>
-      <section class="listing-page-hero listing-feature-hero jobs-feature-hero" style="<%= featuredJob.image_url ? "background-image:linear-gradient(90deg,rgba(12,29,46,.95) 0%,rgba(12,29,46,.8) 48%,rgba(12,29,46,.18) 100%),url('" + featuredJob.image_url.replace(/'/g, "%27") + "')" : "" %>">
+      <section class="listing-page-hero listing-feature-hero jobs-feature-hero">
         <div class="listing-hero-copy">
           <span class="dashboard-kicker">LATEST CAREER OPPORTUNITY</span>
           <h1><%= featuredJob.title %></h1>
@@ -75,6 +77,11 @@
     </main>
   </div>
 
-<footer class="app-footer"><a href="/" class="app-footer-brand">IBA Alumni Connect</a><span>Sukkur IBA alumni, connected beyond graduation.</span><div class="app-footer-links"><a href="/contact">Contact</a><a href="/dashboard">Dashboard</a></div><small>© <%= new Date().getFullYear() %> Alumni Connect</small></footer>
+<footer class="app-footer">
+  <a href="/" class="app-footer-brand">IBA Alumni Connect</a>
+  <span>Sukkur IBA alumni, connected beyond graduation.</span>
+  <div class="app-footer-links"><a href="/contact">Contact</a><a href="/dashboard">Dashboard</a></div>
+  <small>© <%= new Date().getFullYear() %> Alumni Connect</small>
+</footer>
 </body>
 </html>
