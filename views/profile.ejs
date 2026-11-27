@@ -21,7 +21,9 @@
       <% } %>
 
       <form action="/logout" method="POST" style="display:inline">
-<input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="logout" type="submit">Logout</button></form>
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="logout" type="submit">Logout</button>
+      </form>
     </div>
   </header>
 
@@ -53,7 +55,7 @@
         <% } %>
 
         <form action="/profile" method="POST" enctype="multipart/form-data">
-<input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
           <div class="photo-upload">
             <% if (profile.profile_photo) { %>
               <img id="photoPreview" class="preview" src="<%= profile.profile_photo %>">
@@ -159,6 +161,11 @@
     });
   </script>
 
-<footer class="app-footer"><a href="/" class="app-footer-brand">IBA Alumni Connect</a><span>Sukkur IBA alumni, connected beyond graduation.</span><div class="app-footer-links"><a href="/contact">Contact</a><a href="/dashboard">Dashboard</a></div><small>© <%= new Date().getFullYear() %> Alumni Connect</small></footer>
+<footer class="app-footer">
+  <a href="/" class="app-footer-brand">IBA Alumni Connect</a>
+  <span>Sukkur IBA alumni, connected beyond graduation.</span>
+  <div class="app-footer-links"><a href="/contact">Contact</a><a href="/dashboard">Dashboard</a></div>
+  <small>© <%= new Date().getFullYear() %> Alumni Connect</small>
+</footer>
 </body>
 </html>
