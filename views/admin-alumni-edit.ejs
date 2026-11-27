@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Edit Alumni</title><link rel="stylesheet" href="/style.css"></head>
-<body><header class="app-header"><a class="logo" href="/admin">Alumni Connect · Admin</a><form action="/logout" method="POST">
+<body><header class="app-header"><a class="logo" href="/admin"><img class="site-logo" src="/images/iba-alumni-connect.svg" alt="IBA Alumni Connect"></a><form action="/logout" method="POST">
 <input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="logout">Logout</button></form></header>
 <main class="main"><div class="page-head"><div><h1>Edit Alumni</h1><p class="muted">Update the selected alumni account.</p></div><a class="btn light" href="/admin">Back to Admin</a></div>
 <div class="profile-card"><form action="/admin/alumni/<%= person.id %>" method="POST"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><div class="form-grid">
