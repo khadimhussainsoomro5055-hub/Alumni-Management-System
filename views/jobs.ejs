@@ -44,6 +44,9 @@
     <main class="main listing-main jobs-main">
       <% if (featuredJob) { %>
       <section class="listing-page-hero listing-feature-hero jobs-feature-hero">
+        <% if (featuredJob.image_url) { %>
+          <img class="listing-hero-background" src="<%= featuredJob.image_url %>" alt="" aria-hidden="true">
+        <% } %>
         <div class="listing-hero-copy">
           <span class="dashboard-kicker">LATEST CAREER OPPORTUNITY</span>
           <h1><%= featuredJob.title %></h1>
