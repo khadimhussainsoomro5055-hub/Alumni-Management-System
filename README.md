@@ -71,6 +71,10 @@ The registration form sends a welcome email after account creation. The public c
 
 If SMTP is not configured or the provider rejects a message, account creation still succeeds but the sign-in page warns that the welcome email could not be sent. Contact submissions show a send failure so the sender can retry. Never commit SMTP credentials.
 
+## Listing images (events and jobs)
+
+Administrators can optionally attach a featured image when creating or editing an event or job from the Admin Dashboard. Supported formats are JPG, PNG and WEBP, up to 4 MB. Images are stored under `public/uploads/listings`; keep this directory on persistent storage when deploying. Replacing an image removes the previous uploaded file, and deleting a listing removes its associated image. Existing databases are upgraded automatically at application startup with nullable `image_url` columns on the `events` and `jobs` tables.
+
 ## Features
 
 - Alumni signup/signin/logout with bcrypt password hashing
