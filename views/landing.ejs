@@ -21,10 +21,7 @@
       <a href="#events">Events</a>
       <a href="#opportunities">Opportunities</a>
     </nav>
-    <div class="landing-actions">
-      <a class="landing-login" href="/signin">Log in</a>
-      <a class="landing-join" href="/signup">Join the network <span aria-hidden="true">↗</span></a>
-    </div>
+    <div class="landing-actions"><a class="landing-login" href="/signin">Member login <span aria-hidden="true">→</span></a></div>
   </header>
 
   <main>
@@ -35,10 +32,7 @@
         <div class="eyebrow"><span></span> A lifelong connection to your university</div>
         <h1>Where your <em>journey</em><br>continues together.</h1>
         <p>Reconnect with classmates, meet fellow graduates, discover career opportunities and stay part of the community that helped shape your future.</p>
-        <div class="hero-buttons">
-          <a class="hero-primary" href="/signup">Become a member <span aria-hidden="true">→</span></a>
-          <a class="hero-secondary" href="/signin">Member sign in</a>
-        </div>
+        <div class="hero-buttons"><a class="hero-primary" href="/signup">Join the alumni network <span aria-hidden="true">→</span></a></div>
         <div class="hero-note"><span class="hero-note-line"></span> One community. Many paths. Shared beginnings.</div>
       </div>
       <div class="hero-caption"><span>ALUMNI COMMUNITY</span><span>CONNECTED BEYOND GRADUATION</span></div>
@@ -65,7 +59,7 @@
     </section>
 
     <section class="landing-section community-section">
-      <div class="landing-section-heading"><div><div class="section-kicker">THE PEOPLE BEHIND THE NETWORK</div><h2>Recently joined <em>alumni</em></h2></div><a class="text-link" href="/signup">Join them <span>→</span></a></div>
+      <div class="landing-section-heading"><div><div class="section-kicker">THE PEOPLE BEHIND THE NETWORK</div><h2>Meet our <em>alumni</em></h2><p class="landing-section-intro">A growing community of graduates building careers and supporting one another.</p></div></div>
       <% if (recentAlumni.length) { %>
         <div class="landing-people">
           <% recentAlumni.forEach(person => { %>
@@ -80,27 +74,45 @@
 
     <section class="landing-section activity-section" id="events">
       <div class="landing-section-heading"><div><div class="section-kicker">WHAT'S HAPPENING</div><h2>Community <em>updates</em></h2></div></div>
-      <div class="activity-grid">
-        <div class="activity-column"><div class="activity-heading"><h3>Upcoming events</h3><span>EVENTS</span></div>
-          <% if (upcomingEvents.length) { %><% upcomingEvents.forEach(event => { %>
-            <article class="activity-item"><div class="activity-date"><strong><%= new Date(event.event_date).toLocaleDateString("en", {day:"2-digit"}) %></strong><span><%= new Date(event.event_date).toLocaleDateString("en", {month:"short"}) %></span></div><div><h4><%= event.title %></h4><p><%= event.location %></p><% if (event.description) { %><small><%= event.description %></small><% } %></div></article>
-          <% }) %><% } else { %><div class="landing-empty">New community events will appear here when announced.</div><% } %>
-        </div>
-        <div class="activity-column" id="opportunities"><div class="activity-heading"><h3>Career opportunities</h3><span>CAREERS</span></div>
-          <% if (latestJobs.length) { %><% latestJobs.forEach(job => { %>
-            <article class="job-item"><div class="job-symbol">↗</div><div><h4><%= job.title %></h4><p><%= job.company %><% if (job.location) { %> · <%= job.location %><% } %></p><% if (job.description) { %><small><%= job.description %></small><% } %></div></article>
-          <% }) %><% } else { %><div class="landing-empty">Career opportunities shared by the network will appear here.</div><% } %>
-        </div>
+      <div class="landing-feature-columns">
+        <section class="landing-listing-column">
+          <div class="activity-heading"><div><span class="section-kicker">SAVE THE DATE</span><h3>Upcoming events</h3></div><span>EVENTS</span></div>
+          <% if (upcomingEvents.length) { %><div class="landing-listing-grid">
+            <% upcomingEvents.forEach(event => { %>
+              <article class="landing-listing-card">
+                <div class="listing-image-wrap">
+                  <% if (event.image_url) { %><img src="<%= event.image_url %>" alt="<%= event.title %>" loading="lazy"><% } else { %><div class="listing-image-placeholder event-placeholder"><span>COMMUNITY EVENT</span></div><% } %>
+                  <div class="listing-date"><strong><%= new Date(event.event_date).toLocaleDateString("en", {day:"2-digit"}) %></strong><span><%= new Date(event.event_date).toLocaleDateString("en", {month:"short"}) %></span></div>
+                </div>
+                <div class="listing-card-body"><h4><%= event.title %></h4><p class="listing-meta"><span>⌖</span> <%= event.location %></p><% if (event.description) { %><p class="listing-description"><%= event.description %></p><% } %></div>
+              </article>
+            <% }) %>
+          </div><% } else { %><div class="landing-empty">New community events will appear here when announced.</div><% } %>
+        </section>
+        <section class="landing-listing-column" id="opportunities">
+          <div class="activity-heading"><div><span class="section-kicker">CAREER GROWTH</span><h3>Latest opportunities</h3></div><span>CAREERS</span></div>
+          <% if (latestJobs.length) { %><div class="landing-listing-grid">
+            <% latestJobs.forEach(job => { %>
+              <article class="landing-listing-card">
+                <div class="listing-image-wrap job-listing-image">
+                  <% if (job.image_url) { %><img src="<%= job.image_url %>" alt="<%= job.title %>" loading="lazy"><% } else { %><div class="listing-image-placeholder job-placeholder"><span>CAREER OPPORTUNITY</span></div><% } %>
+                  <span class="listing-type">JOB OPENING</span>
+                </div>
+                <div class="listing-card-body"><h4><%= job.title %></h4><p class="listing-company"><%= job.company %></p><p class="listing-meta"><span>⌖</span> <%= job.location || "Location not specified" %></p><% if (job.description) { %><p class="listing-description"><%= job.description %></p><% } %></div>
+              </article>
+            <% }) %>
+          </div><% } else { %><div class="landing-empty">Career opportunities shared by the network will appear here.</div><% } %>
+        </section>
       </div>
-      <p class="landing-disclaimer">Sign in to explore the full alumni directory, events and opportunities.</p>
+      <p class="landing-disclaimer">Sign in to access full event details and explore opportunities shared by the alumni community.</p>
     </section>
 
     <section class="landing-cta">
-      <div><div class="section-kicker">YOUR NEXT CHAPTER STARTS HERE</div><h2>Keep the connection<br><em>going.</em></h2></div>
-      <div class="cta-copy"><p>Reconnect with familiar faces and meet the people who can help shape what comes next.</p><a class="hero-primary" href="/signup">Join Alumni Connect <span>→</span></a></div>
+      <div><div class="section-kicker">BUILT FOR THE SUKKUR IBA COMMUNITY</div><h2>One university.<br><em>A lifetime of connections.</em></h2></div>
+      <div class="cta-copy"><p>Alumni Connect brings graduates, professional opportunities and university activities together in one place. Create your account to take part.</p><span class="cta-note">Reconnect · Collaborate · Grow together</span></div>
     </section>
   </main>
 
-  <footer class="landing-footer"><a class="landing-brand footer-brand" href="/"><img class="landing-logo" src="/images/iba-alumni-connect-light.svg" alt="IBA Alumni Connect"></a><div>Building meaningful connections beyond graduation.</div><a href="/contact">Contact us ↗</a><span>© <%= new Date().getFullYear() %> Alumni Connect</span></footer>
+  <footer class="landing-footer"><a class="landing-brand footer-brand" href="/"><img class="landing-logo" src="/images/iba-alumni-connect-light.svg" alt="IBA Alumni Connect"></a><div class="footer-message">Sukkur IBA alumni, connected beyond graduation.</div><div class="footer-links"><a href="/contact">Contact</a><a href="/signin">Member login</a></div><span>© <%= new Date().getFullYear() %> Alumni Connect</span></footer>
 </body>
 </html>
