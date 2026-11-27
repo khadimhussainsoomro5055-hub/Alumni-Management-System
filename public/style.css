@@ -264,7 +264,7 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: .6; }
 .landing-join { display:inline-flex; align-items:center; gap:12px; padding:12px 17px; border-radius:4px; background:var(--navy-950); color:#fff; font-size:12px; font-weight:700; }
 .landing-join:hover { background:var(--gold-600); color:#fff; }
 .landing-hero { position:relative; min-height:610px; height:min(72vh,760px); overflow:hidden; background:#172f46; color:#fff; }
-.hero-photo { position:absolute; inset:0; background-image:url("https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=2200&q=88"); background-size:cover; background-position:center 47%; transform:scale(1.015); }
+.hero-photo { position:absolute; inset:0; background-image:url("/images/iba-administration-block.jpg"); background-size:cover; background-position:center 47%; transform:scale(1.015); }
 .hero-shade { position:absolute; inset:0; background:linear-gradient(90deg,rgba(9,26,43,.91) 0%,rgba(12,32,51,.78) 43%,rgba(12,32,51,.24) 100%),linear-gradient(0deg,rgba(8,24,39,.35),transparent 45%); }
 .hero-content { position:relative; z-index:1; width:min(760px,90%); padding:clamp(82px,11vw,150px) 0 70px clamp(24px,10vw,145px); }
 .eyebrow,.section-kicker { color:#c9a36d; font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; }
@@ -381,4 +381,36 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: .6; }
 }
 @media(prefers-reduced-motion:reduce) {
   .hero-photo { transform:none; }
+}
+
+
+/* Unified IBA Alumni Connect identity and typography across every page */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap');
+body { font-family:"DM Sans",Inter,"Segoe UI",Arial,sans-serif; font-size:14px; line-height:1.65; }
+h1,h2,h3,h4,.card-title,.logo { font-family:"DM Sans",Inter,"Segoe UI",Arial,sans-serif; }
+h1 { font-size:clamp(25px,3vw,32px); font-weight:750; letter-spacing:-.8px; }
+h2 { font-size:20px; font-weight:700; letter-spacing:-.35px; }
+h3 { font-size:15px; font-weight:700; }
+p { line-height:1.75; }
+.site-logo { display:block; width:220px; max-width:100%; height:auto; }
+.app-header .logo { display:inline-flex; align-items:center; min-width:0; }
+.auth-logo { display:block; width:min(100%,300px); height:auto; margin:0 auto 8px; }
+.auth-card .brand { margin-bottom:20px; }
+.landing-logo { display:block; width:240px; max-width:100%; height:auto; }
+.landing-brand { display:flex; align-items:center; }
+.footer-brand .landing-logo { width:210px; filter:brightness(0) invert(1); opacity:.95; }
+.app-header { font-family:"DM Sans",Inter,"Segoe UI",Arial,sans-serif; }
+.sidebar .nav-item { font-size:13px; letter-spacing:.05px; }
+.main { font-size:14px; }
+.table-wrap th { font-size:10px; letter-spacing:.75px; }
+.table-wrap td { font-size:13px; }
+.btn,.logout { font-family:"DM Sans",Inter,"Segoe UI",Arial,sans-serif; letter-spacing:.05px; }
+.auth-card h1 { font-family:"Playfair Display",Georgia,serif; font-size:28px; font-weight:600; }
+.profile-card,.panel,.stat-card,.alumni-card { border-radius:12px; }
+@media(max-width:760px) {
+ .site-logo { width:180px; }
+ .app-header { min-height:64px; }
+}
+@media(max-width:420px) {
+ .site-logo { width:155px; }
 }
