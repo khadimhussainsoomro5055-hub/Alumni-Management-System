@@ -48,6 +48,7 @@
         </div>
       </div>
 
+      <% if (events.length) { %>
       <div class="events-grid">
         <% events.forEach(e => { %>
           <div class="panel">
@@ -58,6 +59,9 @@
           </div>
         <% }) %>
       </div>
+      <% } else { %>
+        <div class="empty-state"><strong>No events are available right now</strong><p>Please check back later for alumni and university events.</p></div>
+      <% } %>
     </main>
   </div>
 </body>
