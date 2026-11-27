@@ -919,3 +919,137 @@ td { font-size:12px; line-height:1.55; }
   .landing-login { padding-left:11px; font-size:11px; }
   .landing-footer .footer-links { flex-wrap:wrap; }
 }
+
+/* Dashboard and directory-style listings: editorial, warm IBA look */
+.dashboard-main,.listing-main { max-width:1600px; }
+.dashboard-welcome {
+  position:relative; display:flex; align-items:center; justify-content:space-between; gap:28px;
+  min-height:250px; overflow:hidden; padding:38px clamp(25px,4vw,52px);
+  border-radius:17px; background:linear-gradient(112deg,#10243a 0%,#183b56 58%,#294e65 100%);
+  box-shadow:0 14px 35px rgba(16,36,58,.14); color:#fff;
+}
+.dashboard-welcome::after { content:""; position:absolute; inset:auto -5% -140px auto; width:390px; height:390px; border:1px solid rgba(222,193,149,.19); border-radius:50%; box-shadow:0 0 0 36px rgba(222,193,149,.035),0 0 0 76px rgba(222,193,149,.025); }
+.dashboard-welcome-copy { position:relative; z-index:2; max-width:650px; }
+.dashboard-kicker { display:block; color:#a9824c; font-size:9px; font-weight:850; letter-spacing:1.8px; line-height:1.5; }
+.dashboard-welcome .dashboard-kicker { color:#e1c18f; }
+.dashboard-welcome h1 { margin:13px 0 9px; color:#fff; font-family:"Playfair Display",Georgia,serif; font-size:clamp(30px,4vw,46px); font-weight:600; line-height:1.15; letter-spacing:-.7px; }
+.dashboard-welcome h1 em { color:#e0bf8a; font-style:normal; }
+.dashboard-welcome-copy > p { max-width:510px; margin:0; color:rgba(255,255,255,.74); font-size:13px; line-height:1.8; }
+.dashboard-welcome-link { display:inline-flex; align-items:center; gap:23px; margin-top:23px; padding:11px 15px; border:1px solid rgba(224,191,138,.7); border-radius:5px; color:#fff; font-size:11px; font-weight:750; }
+.dashboard-welcome-link:hover { background:#e0bf8a; color:#10243a; }
+.dashboard-welcome-link span { color:#e0bf8a; font-size:17px; line-height:1; }
+.dashboard-welcome-link:hover span { color:#10243a; }
+.dashboard-welcome-art { position:relative; z-index:1; display:grid; place-items:center; width:270px; height:190px; flex:0 0 270px; }
+.welcome-orbit { position:absolute; display:block; border:1px solid rgba(224,191,138,.36); border-radius:50%; transform:rotate(-25deg); }
+.orbit-one { width:215px; height:135px; }
+.orbit-two { width:165px; height:190px; transform:rotate(48deg); border-color:rgba(255,255,255,.17); }
+.welcome-monogram { color:rgba(255,255,255,.92); font-family:"Playfair Display",Georgia,serif; font-size:59px; letter-spacing:2px; }
+.welcome-caption { position:absolute; right:0; bottom:3px; color:#e0bf8a; font-size:8px; font-weight:800; line-height:1.8; letter-spacing:1.6px; text-align:right; }
+.dashboard-section-intro { display:flex; align-items:flex-end; justify-content:space-between; gap:18px; margin:34px 0 17px; }
+.dashboard-section-intro h2 { margin:6px 0 0; color:#142b41; font-family:"Playfair Display",Georgia,serif; font-size:24px; font-weight:600; line-height:1.2; }
+.dashboard-section-intro p { margin:7px 0 0; color:#7a8795; font-size:12px; }
+.dashboard-updated { color:#8591a0; font-size:10px; }
+.dashboard-stat-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:17px; }
+.dashboard-stat { position:relative; min-width:0; overflow:hidden; padding:21px 23px 22px; border:1px solid #e8ebef; border-radius:12px; background:#fff; box-shadow:0 4px 14px rgba(16,36,58,.035); transition:transform .2s ease,box-shadow .2s ease; }
+.dashboard-stat:hover { transform:translateY(-3px); box-shadow:0 12px 25px rgba(16,36,58,.08); }
+.dashboard-stat::after { content:""; position:absolute; right:-30px; bottom:-55px; width:125px; height:125px; border:1px solid rgba(190,151,91,.16); border-radius:50%; box-shadow:0 0 0 16px rgba(190,151,91,.035); }
+.dashboard-stat-top { display:flex; align-items:center; justify-content:space-between; }
+.dashboard-stat-icon { display:grid; place-items:center; width:37px; height:37px; border-radius:10px; background:#f4ecdf; color:#9a713e; font-size:20px; }
+.dashboard-stat-label { color:#9aa4af; font-size:8px; font-weight:850; letter-spacing:1.3px; }
+.dashboard-stat > strong { display:block; margin-top:16px; color:#142b41; font-family:"Playfair Display",Georgia,serif; font-size:38px; font-weight:600; line-height:1; }
+.dashboard-stat h3 { margin:7px 0 2px; color:#25394d; font-size:13px; font-weight:750; }
+.dashboard-stat > p { margin:0; color:#8a95a2; font-size:10px; }
+.dashboard-community-section { margin-top:38px; }
+.dashboard-community-section .dashboard-section-intro { align-items:flex-end; margin-bottom:18px; }
+.dashboard-section-link { display:inline-flex; align-items:center; gap:10px; padding-bottom:5px; border-bottom:1px solid #d9c19a; color:#795b34; font-size:11px; font-weight:800; white-space:nowrap; }
+.dashboard-section-link span { font-size:16px; }
+.dashboard-alumni-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:13px; }
+.dashboard-alumni-card { display:flex; align-items:center; gap:14px; min-width:0; padding:16px; border:1px solid #e8ebef; border-radius:11px; background:#fff; box-shadow:0 3px 12px rgba(16,36,58,.03); transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease; }
+.dashboard-alumni-card:hover { transform:translateY(-2px); border-color:#d7c29f; box-shadow:0 8px 18px rgba(16,36,58,.06); }
+.dashboard-alumni-avatar { display:grid; place-items:center; width:55px; height:55px; flex:0 0 55px; border:2px solid #f0e6d7; border-radius:50%; object-fit:cover; background:#f4ecdf; color:#17324d; font-size:21px; font-weight:800; }
+.dashboard-alumni-info { min-width:0; }
+.dashboard-alumni-info h3 { overflow:hidden; margin:0 0 3px; color:#1b3045; font-size:13px; font-weight:800; text-overflow:ellipsis; white-space:nowrap; }
+.dashboard-alumni-info > p { overflow:hidden; margin:0 0 8px; color:#778494; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }
+.dashboard-alumni-tags { display:flex; flex-wrap:wrap; gap:5px; }
+.dashboard-alumni-tags span { padding:4px 7px; border-radius:4px; background:#f5f6f8; color:#738091; font-size:8px; font-weight:750; }
+.listing-page-hero { position:relative; display:flex; align-items:center; justify-content:space-between; gap:30px; min-height:245px; overflow:hidden; padding:34px clamp(24px,4vw,48px); border-radius:16px; color:#fff; box-shadow:0 13px 30px rgba(16,36,58,.12); }
+.events-page-hero { background:linear-gradient(112deg,#142d43 0%,#264d63 63%,#54716f 100%); }
+.jobs-page-hero { background:linear-gradient(112deg,#172b41 0%,#304a61 63%,#78654c 100%); }
+.listing-hero-copy { position:relative; z-index:2; max-width:660px; }
+.listing-hero-copy .dashboard-kicker { color:#e1c18f; }
+.listing-hero-copy h1 { margin:12px 0 12px; color:#fff; font-family:"Playfair Display",Georgia,serif; font-size:clamp(34px,4.3vw,49px); font-weight:600; line-height:1.12; letter-spacing:-.7px; }
+.listing-hero-copy h1 em { color:#e0bf8a; font-style:normal; }
+.listing-hero-copy > p { max-width:570px; margin:0; color:rgba(255,255,255,.76); font-size:12px; line-height:1.8; }
+.listing-hero-meta { display:flex; align-items:center; gap:9px; margin-top:19px; color:#f0d9b4; font-size:10px; font-weight:750; letter-spacing:.35px; }
+.listing-hero-meta span { color:#e0bf8a; font-size:15px; }
+.listing-hero-decoration { position:relative; display:grid; place-items:center; width:240px; height:190px; flex:0 0 240px; }
+.decoration-ring { position:absolute; width:180px; height:180px; border:1px solid rgba(235,213,178,.32); border-radius:50%; box-shadow:0 0 0 22px rgba(255,255,255,.035),0 0 0 46px rgba(255,255,255,.025); }
+.decoration-letter { color:rgba(255,255,255,.91); font-family:"Playfair Display",Georgia,serif; font-size:103px; line-height:1; }
+.job-decoration .decoration-letter { font-family:"DM Sans",sans-serif; font-size:105px; font-weight:300; }
+.decoration-caption { position:absolute; bottom:0; color:#e0bf8a; font-size:8px; font-weight:850; letter-spacing:1.6px; white-space:nowrap; }
+.listing-toolbar { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; margin:35px 0 19px; }
+.listing-toolbar h2 { margin:6px 0 0; color:#142b41; font-family:"Playfair Display",Georgia,serif; font-size:25px; font-weight:600; }
+.listing-search { display:flex; align-items:center; gap:10px; width:min(100%,340px); min-height:43px; margin:0; padding:0 13px; border:1px solid #e2e7ed; border-radius:7px; background:#fff; box-shadow:0 3px 10px rgba(16,36,58,.025); }
+.listing-search:focus-within { border-color:#c49a5a; box-shadow:0 0 0 3px rgba(196,154,90,.12); }
+.listing-search > span { color:#a17c4b; font-size:22px; line-height:1; }
+.listing-search input { min-height:40px; padding:8px 0; border:0; outline:0; box-shadow:none; font-size:11px; }
+.listing-search input:focus { border:0; box-shadow:none; }
+.listing-page-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:19px; align-items:stretch; }
+.listing-page-grid .listing-card { display:flex; flex-direction:column; min-height:100%; border-color:#e7eaf0; border-radius:12px; }
+.listing-page-grid .listing-image-wrap { height:190px; flex:0 0 190px; }
+.listing-page-grid .listing-card-body { display:flex; flex:1; flex-direction:column; padding:19px; }
+.listing-page-grid .listing-card-body h2 { margin:4px 0 9px; font-size:17px; line-height:1.35; }
+.listing-page-grid .listing-description { display:-webkit-box; margin-top:8px; -webkit-line-clamp:3; }
+.listing-photo-label { position:absolute; top:13px; right:13px; padding:6px 8px; border:1px solid rgba(255,255,255,.35); border-radius:3px; background:rgba(16,36,58,.78); color:#fff; font-size:8px; font-weight:850; letter-spacing:1px; }
+.event-card-date { display:flex; align-items:center; gap:7px; margin-bottom:6px; color:#9a7546; font-size:9px; font-weight:750; }
+.event-card-date span { font-size:14px; }
+.listing-card-bottom { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:auto; padding-top:15px; }
+.listing-card-category { color:#9b805b; font-size:8px; font-weight:850; letter-spacing:1px; }
+.listing-card-arrow { display:grid; place-items:center; width:27px; height:27px; border-radius:50%; background:#f5eee3; color:#8b693d; font-size:14px; }
+.listing-no-results { margin:18px 0; padding:25px; border:1px dashed #d9c8ad; border-radius:10px; color:#788494; text-align:center; font-size:12px; }
+.listing-empty-feature { display:flex; align-items:center; flex-direction:column; justify-content:center; min-height:265px; padding:35px 24px; border:1px dashed #d8c6a7; border-radius:13px; background:linear-gradient(135deg,#fff,#faf7f1); text-align:center; }
+.empty-feature-icon { display:grid; place-items:center; width:54px; height:54px; margin-bottom:15px; border-radius:15px; background:#f2e8d8; color:#947044; font-size:25px; }
+.listing-empty-feature strong { color:#19324a; font-family:"Playfair Display",Georgia,serif; font-size:21px; font-weight:600; }
+.listing-empty-feature p { max-width:460px; margin:8px 0 0; color:#7e8996; font-size:11px; line-height:1.7; }
+[hidden] { display:none !important; }
+@media(max-width:1100px) {
+  .listing-page-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .dashboard-welcome-art { width:210px; flex-basis:210px; }
+  .dashboard-alumni-grid { grid-template-columns:1fr; }
+}
+@media(max-width:760px) {
+  .dashboard-welcome { min-height:0; padding:29px 24px; }
+  .dashboard-welcome-art,.listing-hero-decoration { width:145px; height:145px; flex-basis:145px; }
+  .welcome-monogram { font-size:43px; }
+  .welcome-caption { right:-4px; bottom:-2px; font-size:6px; }
+  .orbit-one { width:135px; height:90px; }
+  .orbit-two { width:105px; height:130px; }
+  .listing-page-hero { min-height:0; padding:27px 24px; }
+  .decoration-ring { width:115px; height:115px; }
+  .decoration-letter { font-size:70px; }
+  .decoration-caption { font-size:6px; letter-spacing:1px; }
+  .listing-toolbar { align-items:stretch; flex-direction:column; gap:14px; margin-top:27px; }
+  .listing-search { width:100%; }
+}
+@media(max-width:560px) {
+  .dashboard-welcome-art,.listing-hero-decoration { display:none; }
+  .dashboard-welcome { padding:27px 21px; border-radius:12px; }
+  .dashboard-welcome h1 { font-size:32px; }
+  .dashboard-section-intro { align-items:flex-start; flex-direction:column; margin-top:28px; }
+  .dashboard-section-intro h2 { font-size:22px; }
+  .dashboard-updated { display:none; }
+  .dashboard-stat-grid { grid-template-columns:1fr; gap:10px; }
+  .dashboard-stat { padding:17px 18px; }
+  .dashboard-stat > strong { margin-top:11px; font-size:32px; }
+  .dashboard-community-section .dashboard-section-intro { gap:9px; }
+  .dashboard-alumni-grid { grid-template-columns:1fr; }
+  .dashboard-alumni-card { padding:13px; }
+  .listing-page-hero { padding:25px 20px; border-radius:12px; }
+  .listing-hero-copy h1 { font-size:35px; }
+  .listing-page-grid { grid-template-columns:1fr; gap:15px; }
+  .listing-page-grid .listing-image-wrap { height:205px; flex-basis:205px; }
+  .listing-page-grid .listing-card-body { padding:17px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .dashboard-stat,.dashboard-alumni-card,.listing-card { transition:none; }
+}
