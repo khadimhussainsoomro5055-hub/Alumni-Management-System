@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Edit Alumni</title><link rel="stylesheet" href="/style.css"></head>
-<body><header class="app-header"><a class="logo" href="/admin"><img class="site-logo" src="/images/iba-alumni-connect-light.svg" alt="IBA Alumni Connect"></a><form action="/logout" method="POST">
+<body><header class="app-header"><a class="logo" href="/admin"><img class="site-logo" src="/images/iba-alumni-connect.svg" alt="IBA Alumni Connect"></a><form action="/logout" method="POST">
 <input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="logout">Logout</button></form></header>
 <main class="main"><div class="page-head"><div><h1>Edit Alumni</h1><p class="muted">Update the selected alumni account.</p></div><a class="btn light" href="/admin">Back to Admin</a></div>
 <div class="profile-card"><form action="/admin/alumni/<%= person.id %>" method="POST"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><div class="form-grid">
@@ -19,4 +19,6 @@
 <div><label>Country</label><input name="country" value="<%= person.country || 'Pakistan' %>"></div>
 <div><label>Account Role</label><select name="role"><option value="alumni" <%= person.role !== "admin" ? "selected" : "" %>>Alumni</option><option value="admin" <%= person.role === "admin" ? "selected" : "" %>>Administrator</option></select></div>
 <div class="full"><label>Address</label><textarea name="address" rows="3"><%= person.address || '' %></textarea></div>
-</div><br><button class="btn" type="submit">Save Changes</button></form></div></main></body></html>
+</div><br><button class="btn" type="submit">Save Changes</button></form></div></main>
+<footer class="app-footer"><a href="/" class="app-footer-brand">IBA Alumni Connect</a><span>Sukkur IBA alumni, connected beyond graduation.</span><div class="app-footer-links"><a href="/contact">Contact</a><a href="/dashboard">Dashboard</a></div><small>© <%= new Date().getFullYear() %> Alumni Connect</small></footer>
+</body></html>
