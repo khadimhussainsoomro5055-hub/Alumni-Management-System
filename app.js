@@ -294,6 +294,8 @@ app.post("/signin", authLimiter, async (req, res, next) => {
     const user = rows[0];
     req.session.regenerate(err => {
       if (err) return next(err);
+      // Regenerating the session clears its data, so issue a fresh CSRF token.
+      req.session.csrfToken = crypto.randomBytes(32).toString("hex");
       req.session.user = { id: user.id, full_name: user.full_name, email: user.email, profile_photo: user.profile_photo, role: user.role || "alumni" };
       req.session.save(saveErr => {
         if (saveErr) return next(saveErr);
