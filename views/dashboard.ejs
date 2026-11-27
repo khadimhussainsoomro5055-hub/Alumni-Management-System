@@ -40,16 +40,27 @@
     </aside>
 
     <main class="main dashboard-main">
-      <section class="dashboard-welcome">
-        <div class="dashboard-welcome-copy">
-          <span class="dashboard-kicker">IBA ALUMNI CONNECT</span>
-          <h1>Welcome back, <em><%= sessionUser.full_name.split(" ")[0] %>.</em></h1>
-          <p>Your community, career opportunities and university connections — all in one place.</p>
-          <a class="dashboard-welcome-link" href="/profile">Manage your profile <span>→</span></a>
+      <section class="dashboard-welcome dashboard-profile-hero">
+        <div class="dashboard-profile-backdrop" aria-hidden="true"></div>
+        <div class="dashboard-welcome-copy dashboard-profile-copy">
+          <span class="dashboard-kicker">YOUR SUKKUR IBA ALUMNI PROFILE</span>
+          <h1>Welcome back,<br><em><%= profile.full_name %></em></h1>
+          <p class="dashboard-profile-role"><%= [profile.current_job, profile.company].filter(Boolean).join(" at ") || "Sukkur IBA Alumni Community" %></p>
+          <div class="dashboard-profile-details">
+            <span><strong>DEPARTMENT</strong><%= profile.department || "Not added yet" %></span>
+            <span><strong>GRADUATION</strong><%= profile.graduation_year || "—" %></span>
+            <span><strong>EMAIL</strong><%= profile.email %></span>
+            <span><strong>LOCATION</strong><%= [profile.city, profile.country].filter(Boolean).join(", ") || "Not added yet" %></span>
+          </div>
+          <a class="dashboard-welcome-link" href="/profile">View / update profile <span>→</span></a>
         </div>
-        <div class="dashboard-welcome-art" aria-hidden="true">
-          <span class="welcome-orbit orbit-one"></span><span class="welcome-orbit orbit-two"></span>
-          <span class="welcome-monogram">IBA</span><span class="welcome-caption">CONNECTED<br>BEYOND GRADUATION</span>
+        <div class="dashboard-profile-photo-wrap">
+          <% if (profile.profile_photo) { %>
+            <img class="dashboard-profile-photo" src="<%= profile.profile_photo %>" alt="<%= profile.full_name %>">
+          <% } else { %>
+            <div class="dashboard-profile-photo dashboard-profile-initial"><%= profile.full_name.charAt(0).toUpperCase() %></div>
+          <% } %>
+          <span class="dashboard-profile-photo-caption">SUKKUR IBA · ALUMNI</span>
         </div>
       </section>
 
@@ -73,7 +84,7 @@
         </div>
         <% } else { %><div class="empty-state"><strong>Your alumni community is growing</strong><p>New members will appear here after they join.</p></div><% } %>
       </section>
-    </main>ain>
+    </main>
   </div>
 
 <footer class="app-footer"><a href="/" class="app-footer-brand">IBA Alumni Connect</a><span>Sukkur IBA alumni, connected beyond graduation.</span><div class="app-footer-links"><a href="/contact">Contact</a><a href="/dashboard">Dashboard</a></div><small>© <%= new Date().getFullYear() %> Alumni Connect</small></footer>
