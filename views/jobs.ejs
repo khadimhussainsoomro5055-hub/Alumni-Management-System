@@ -40,10 +40,20 @@
     </aside>
 
     <main class="main listing-main jobs-main">
-      <section class="listing-page-hero jobs-page-hero">
-        <div class="listing-hero-copy"><span class="dashboard-kicker">CAREER & PROFESSIONAL GROWTH</span><h1>Your next move<br><em>starts here.</em></h1><p>Explore career opportunities shared by fellow graduates and discover new ways to grow through the Sukkur IBA alumni network.</p><div class="listing-hero-meta"><span>✦</span> <%= jobs.length %> <%= jobs.length === 1 ? "opportunity" : "opportunities" %> shared</div></div>
-        <div class="listing-hero-decoration job-decoration" aria-hidden="true"><span class="decoration-ring"></span><span class="decoration-letter">↗</span><span class="decoration-caption">DISCOVER · DEVELOP · ACHIEVE</span></div>
+      <% if (featuredJob) { %>
+      <section class="listing-page-hero listing-feature-hero jobs-feature-hero" style="<%= featuredJob.image_url ? "background-image:linear-gradient(90deg,rgba(12,29,46,.95) 0%,rgba(12,29,46,.8) 48%,rgba(12,29,46,.18) 100%),url('" + featuredJob.image_url.replace(/'/g, "%27") + "')" : "" %>">
+        <div class="listing-hero-copy">
+          <span class="dashboard-kicker">LATEST CAREER OPPORTUNITY</span>
+          <h1><%= featuredJob.title %></h1>
+          <p class="feature-job-company"><%= featuredJob.company %></p>
+          <p><%= featuredJob.description || "A new opportunity shared through the Sukkur IBA alumni network. Explore the role and take your next professional step." %></p>
+          <div class="listing-hero-meta"><span>⌖</span><%= featuredJob.location || "Location not specified" %><span>◷</span>Posted <%= new Date(featuredJob.posted_at).toLocaleDateString("en", {month:"short",day:"numeric",year:"numeric"}) %></div>
+        </div>
+        <div class="feature-hero-side feature-job-side"><span class="feature-hero-label">NEW OPPORTUNITY</span><strong>CAREER</strong><span><%= featuredJob.company %></span></div>
       </section>
+      <% } else { %>
+      <section class="listing-page-hero listing-feature-hero jobs-feature-hero jobs-feature-empty"><div class="listing-hero-copy"><span class="dashboard-kicker">CAREER & PROFESSIONAL GROWTH</span><h1>Opportunities at Sukkur IBA</h1><p>No job has been posted yet. The latest opportunity will appear here as soon as it is shared.</p></div></section>
+      <% } %>
       <div class="listing-toolbar"><div><span class="dashboard-kicker">TAKE THE NEXT STEP</span><h2>Career opportunities</h2></div><label class="listing-search"><span>⌕</span><input type="search" id="jobSearch" placeholder="Search roles, companies or locations..." aria-label="Search job opportunities"></label></div>
       <% if (jobs.length) { %>
       <div class="jobs-grid listing-page-grid" id="jobGrid">
@@ -62,7 +72,7 @@
       <script>
         (() => { const input = document.getElementById("jobSearch"); const cards = [...document.querySelectorAll("#jobGrid [data-search]")]; const empty = document.getElementById("jobNoResults"); if (!input) return; input.addEventListener("input", () => { const q = input.value.trim().toLowerCase(); let visible = 0; cards.forEach(card => { const match = card.dataset.search.includes(q); card.hidden = !match; if (match) visible++; }); if (empty) empty.hidden = visible !== 0; }); })();
       </script>
-    </main>ain>
+    </main>
   </div>
 
 <footer class="app-footer"><a href="/" class="app-footer-brand">IBA Alumni Connect</a><span>Sukkur IBA alumni, connected beyond graduation.</span><div class="app-footer-links"><a href="/contact">Contact</a><a href="/dashboard">Dashboard</a></div><small>© <%= new Date().getFullYear() %> Alumni Connect</small></footer>
