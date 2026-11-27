@@ -30,18 +30,35 @@ npm start
 
 Do not commit `.env`, database passwords, session secrets or uploaded user data.
 
-## Administrator setup
+## First administrator setup and login
 
-1. Register through the normal signup page.
-2. Promote the intended account using a trusted MySQL administrator account:
+There is **no default administrator username or password**. For security, the application does not create a hard-coded admin account.
+
+1. Start the application and open `http://localhost:3000/signup`.
+2. Create your account using your own email address and a strong password. Choose your department and graduation year as normal.
+3. Open phpMyAdmin (or MySQL Workbench), select the `alumni_system` database, open the SQL tab and run the following statement with the exact email used during signup:
 
 ```sql
-UPDATE alumni SET role='admin' WHERE email='your-admin-email@example.com';
+UPDATE alumni
+SET role = 'admin'
+WHERE email = 'your-admin-email@example.com';
 ```
 
-3. Sign out and sign in again. Admins are redirected to `/admin`.
+4. Confirm that the account was promoted:
 
-Administrators can manage alumni accounts, events and jobs. Public signup never accepts an administrator role. The application prevents an administrator from deleting their own account.
+```sql
+SELECT id, full_name, email, role
+FROM alumni
+WHERE email = 'your-admin-email@example.com';
+```
+
+The `role` result must be `admin`. If it reports `alumni` or no row is returned, check the email address and run the update again.
+
+5. Sign out of Alumni Connect, then sign in at `http://localhost:3000/signin` using the same email and password you registered with. The application checks the database role and redirects an administrator to `/admin`; regular alumni go to `/dashboard`.
+
+Administrators can manage alumni accounts, events and job opportunities from the admin dashboard. Public signup never accepts an administrator role. The application prevents an administrator from deleting their own account and prevents demoting the last administrator.
+
+**Important:** Do not share your database administrator password or add a plain-text admin password to source code. Only promote trusted accounts using a MySQL administrator connection.
 
 ## SMTP email configuration
 
