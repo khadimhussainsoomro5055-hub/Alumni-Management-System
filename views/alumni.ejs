@@ -53,6 +53,7 @@
         <button class="btn" type="submit">Search</button>
       </form>
 
+      <% if (alumni.length) { %>
       <div class="alumni-grid">
         <% alumni.forEach(a => { %>
           <div class="alumni-card">
@@ -73,6 +74,9 @@
           </div>
         <% }) %>
       </div>
+      <% } else { %>
+        <div class="empty-state"><strong>No alumni found</strong><p>Try a different name, department, job title or city.</p></div>
+      <% } %>
       <% if (totalPages > 1) { %>
         <nav class="pagination" aria-label="Directory pages">
           <% if (page > 1) { %><a class="btn light" href="/alumni?search=<%= encodeURIComponent(search) %>&page=<%= page - 1 %>">Previous</a><% } %>
