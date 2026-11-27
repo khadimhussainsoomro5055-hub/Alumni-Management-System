@@ -40,10 +40,19 @@
     </aside>
 
     <main class="main listing-main events-main">
-      <section class="listing-page-hero events-page-hero">
-        <div class="listing-hero-copy"><span class="dashboard-kicker">CAMPUS & COMMUNITY</span><h1>Moments that bring<br><em>us together.</em></h1><p>Discover alumni gatherings, university activities and opportunities to reconnect with the people who share your Sukkur IBA story.</p><div class="listing-hero-meta"><span>✦</span> <%= events.length %> <%= events.length === 1 ? "event" : "events" %> listed</div></div>
-        <div class="listing-hero-decoration event-decoration" aria-hidden="true"><span class="decoration-ring"></span><span class="decoration-letter">E</span><span class="decoration-caption">MEET · SHARE · CONNECT</span></div>
+      <% if (featuredEvent) { %>
+      <section class="listing-page-hero listing-feature-hero events-feature-hero" style="<%= featuredEvent.image_url ? "background-image:linear-gradient(90deg,rgba(12,29,46,.94) 0%,rgba(12,29,46,.78) 48%,rgba(12,29,46,.2) 100%),url('" + featuredEvent.image_url.replace(/'/g, "%27") + "')" : "" %>">
+        <div class="listing-hero-copy">
+          <span class="dashboard-kicker">FEATURED COMMUNITY EVENT</span>
+          <h1><%= featuredEvent.title %></h1>
+          <p><%= featuredEvent.description || "Be part of the next Sukkur IBA alumni gathering. Meet your community, share experiences and reconnect." %></p>
+          <div class="listing-hero-meta"><span>◷</span><%= new Date(featuredEvent.event_date).toLocaleDateString("en", {weekday:"long",month:"long",day:"numeric",year:"numeric"}) %><span>⌖</span><%= featuredEvent.location %></div>
+        </div>
+        <div class="feature-hero-side"><span class="feature-hero-label">UPCOMING EVENT</span><strong><%= new Date(featuredEvent.event_date).toLocaleDateString("en", {day:"2-digit"}) %></strong><span><%= new Date(featuredEvent.event_date).toLocaleDateString("en", {month:"long",year:"numeric"}) %></span></div>
       </section>
+      <% } else { %>
+      <section class="listing-page-hero listing-feature-hero events-feature-hero events-feature-empty"><div class="listing-hero-copy"><span class="dashboard-kicker">CAMPUS & COMMUNITY</span><h1>Events at Sukkur IBA</h1><p>There are no events listed yet. When a new gathering is added, it will be featured here.</p></div></section>
+      <% } %>
       <div class="listing-toolbar"><div><span class="dashboard-kicker">WHAT'S HAPPENING</span><h2>Explore events</h2></div><label class="listing-search"><span>⌕</span><input type="search" id="eventSearch" placeholder="Search events or locations..." aria-label="Search events"></label></div>
       <% if (events.length) { %>
       <div class="events-grid listing-page-grid" id="eventGrid">
@@ -63,7 +72,7 @@
       <script>
         (() => { const input = document.getElementById("eventSearch"); const cards = [...document.querySelectorAll("#eventGrid [data-search]")]; const empty = document.getElementById("eventNoResults"); if (!input) return; input.addEventListener("input", () => { const q = input.value.trim().toLowerCase(); let visible = 0; cards.forEach(card => { const match = card.dataset.search.includes(q); card.hidden = !match; if (match) visible++; }); if (empty) empty.hidden = visible !== 0; }); })();
       </script>
-    </main>ain>
+    </main>
   </div>
 
 <footer class="app-footer"><a href="/" class="app-footer-brand">IBA Alumni Connect</a><span>Sukkur IBA alumni, connected beyond graduation.</span><div class="app-footer-links"><a href="/contact">Contact</a><a href="/dashboard">Dashboard</a></div><small>© <%= new Date().getFullYear() %> Alumni Connect</small></footer>
