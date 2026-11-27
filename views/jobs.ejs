@@ -39,30 +39,30 @@
 
     </aside>
 
-    <main class="main">
-      <div class="page-head">
-        <div>
-          <h1>Jobs &amp; Opportunities</h1>
-          <p class="muted">Career opportunities shared through Alumni Connect.</p>
-        </div>
-      </div>
-
+    <main class="main listing-main jobs-main">
+      <section class="listing-page-hero jobs-page-hero">
+        <div class="listing-hero-copy"><span class="dashboard-kicker">CAREER & PROFESSIONAL GROWTH</span><h1>Your next move<br><em>starts here.</em></h1><p>Explore career opportunities shared by fellow graduates and discover new ways to grow through the Sukkur IBA alumni network.</p><div class="listing-hero-meta"><span>✦</span> <%= jobs.length %> <%= jobs.length === 1 ? "opportunity" : "opportunities" %> shared</div></div>
+        <div class="listing-hero-decoration job-decoration" aria-hidden="true"><span class="decoration-ring"></span><span class="decoration-letter">↗</span><span class="decoration-caption">DISCOVER · DEVELOP · ACHIEVE</span></div>
+      </section>
+      <div class="listing-toolbar"><div><span class="dashboard-kicker">TAKE THE NEXT STEP</span><h2>Career opportunities</h2></div><label class="listing-search"><span>⌕</span><input type="search" id="jobSearch" placeholder="Search roles, companies or locations..." aria-label="Search job opportunities"></label></div>
       <% if (jobs.length) { %>
-      <div class="jobs-grid listing-page-grid">
+      <div class="jobs-grid listing-page-grid" id="jobGrid">
         <% jobs.forEach(j => { %>
-          <article class="listing-card job-card">
+          <article class="listing-card job-card" data-search="<%= (j.title + ' ' + j.company + ' ' + (j.location || '') + ' ' + (j.description || '')).toLowerCase() %>">
             <div class="listing-image-wrap">
               <% if (j.image_url) { %><img src="<%= j.image_url %>" alt="<%= j.title %>" loading="lazy"><% } else { %><div class="listing-image-placeholder job-placeholder"><span>CAREER OPPORTUNITY</span></div><% } %>
-              <span class="listing-type">JOB OPENING</span>
+              <span class="listing-type">OPEN OPPORTUNITY</span>
             </div>
-            <div class="listing-card-body"><div class="listing-eyebrow">CAREER OPPORTUNITY</div><h2><%= j.title %></h2><p class="listing-company"><%= j.company %></p><p class="listing-meta"><span>⌖</span> <%= j.location || "Location not specified" %></p><% if (j.description) { %><p class="listing-description"><%= j.description %></p><% } %></div>
+            <div class="listing-card-body"><div class="listing-eyebrow">CAREER OPPORTUNITY</div><h2><%= j.title %></h2><p class="listing-company"><%= j.company %></p><p class="listing-meta"><span>⌖</span> <%= j.location || "Location not specified" %></p><% if (j.description) { %><p class="listing-description"><%= j.description %></p><% } %><div class="listing-card-bottom"><span class="listing-card-category">SHARED BY THE NETWORK</span><span class="listing-card-arrow" aria-hidden="true">↗</span></div></div>
           </article>
         <% }) %>
       </div>
-      <% } else { %>
-        <div class="empty-state"><strong>No job opportunities are available</strong><p>New opportunities shared with the alumni community will appear here.</p></div>
-      <% } %>
-    </main>
+      <p class="listing-no-results" id="jobNoResults" hidden>No opportunities match your search. Try another role, company or location.</p>
+      <% } else { %><div class="listing-empty-feature"><span class="empty-feature-icon">↗</span><strong>Your next opportunity could be just around the corner.</strong><p>No jobs have been shared yet. New opportunities posted by the alumni community will appear here.</p></div><% } %>
+      <script>
+        (() => { const input = document.getElementById("jobSearch"); const cards = [...document.querySelectorAll("#jobGrid [data-search]")]; const empty = document.getElementById("jobNoResults"); if (!input) return; input.addEventListener("input", () => { const q = input.value.trim().toLowerCase(); let visible = 0; cards.forEach(card => { const match = card.dataset.search.includes(q); card.hidden = !match; if (match) visible++; }); if (empty) empty.hidden = visible !== 0; }); })();
+      </script>
+    </main>ain>
   </div>
 
 <footer class="app-footer"><a href="/" class="app-footer-brand">IBA Alumni Connect</a><span>Sukkur IBA alumni, connected beyond graduation.</span><div class="app-footer-links"><a href="/contact">Contact</a><a href="/dashboard">Dashboard</a></div><small>© <%= new Date().getFullYear() %> Alumni Connect</small></footer>
