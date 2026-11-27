@@ -264,7 +264,7 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: .6; }
 .landing-join { display:inline-flex; align-items:center; gap:12px; padding:12px 17px; border-radius:4px; background:var(--navy-950); color:#fff; font-size:12px; font-weight:700; }
 .landing-join:hover { background:var(--gold-600); color:#fff; }
 .landing-hero { position:relative; min-height:610px; height:min(72vh,760px); overflow:hidden; background:#172f46; color:#fff; }
-.hero-photo { position:absolute; inset:0; background-image:url("/images/iba-administration-block.jpg"); background-size:cover; background-position:center 47%; transform:scale(1.015); }
+.hero-photo { position:absolute; inset:0; background-image:url("/images/iba-administration-block.jpg"); background-size:cover; background-position:center 78%; transform:scale(1.015); }
 .hero-shade { position:absolute; inset:0; background:linear-gradient(90deg,rgba(9,26,43,.91) 0%,rgba(12,32,51,.78) 43%,rgba(12,32,51,.24) 100%),linear-gradient(0deg,rgba(8,24,39,.35),transparent 45%); }
 .hero-content { position:relative; z-index:1; width:min(760px,90%); padding:clamp(82px,11vw,150px) 0 70px clamp(24px,10vw,145px); }
 .eyebrow,.section-kicker { color:#c9a36d; font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; }
