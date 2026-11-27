@@ -310,12 +310,12 @@ app.get("/alumni", auth, async (req, res, next) => {
     const params = [req.session.user.id];
     const countParams = [req.session.user.id];
     if (search) {
-      const where = " WHERE full_name LIKE ? OR email LIKE ? OR department LIKE ? OR current_job LIKE ? OR city LIKE ?";
+      const where = " AND (full_name LIKE ? OR department LIKE ? OR degree LIKE ? OR current_job LIKE ? OR company LIKE ? OR city LIKE ?)";
       sql += where;
       countSql += where;
       const term = "%" + search + "%";
-      params.push(term, term, term, term, term);
-      countParams.push(term, term, term, term, term);
+      params.push(term, term, term, term, term, term);
+      countParams.push(term, term, term, term, term, term);
     }
     sql += " ORDER BY full_name LIMIT ? OFFSET ?";
     params.push(pageSize, offset);
