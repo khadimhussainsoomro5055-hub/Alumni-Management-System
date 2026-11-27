@@ -181,7 +181,28 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/", (req, res) => res.redirect(req.session.user ? (req.session.user.role === "admin" ? "/admin" : "/dashboard") : "/signin"));
+app.get("/", async (req, res, next) => {
+  if (req.session.user) return res.redirect(req.session.user.role === "admin" ? "/admin" : "/dashboard");
+  try {
+    const [[stats]] = await db.query(`
+      SELECT
+        (SELECT COUNT(*) FROM alumni) AS total_alumni,
+        (SELECT COUNT(DISTINCT department) FROM alumni WHERE department IS NOT NULL AND department <> '') AS total_departments,
+        (SELECT COUNT(*) FROM events WHERE event_date >= NOW()) AS upcoming_events,
+        (SELECT COUNT(*) FROM jobs) AS total_jobs
+    `);
+    const [recentAlumni] = await db.query(
+      "SELECT full_name, department, graduation_year, current_job, company, city, profile_photo FROM alumni ORDER BY created_at DESC, id DESC LIMIT 4"
+    );
+    const [upcomingEvents] = await db.query(
+      "SELECT title, event_date, location, description FROM events WHERE event_date >= NOW() ORDER BY event_date ASC LIMIT 3"
+    );
+    const [latestJobs] = await db.query(
+      "SELECT title, company, location, description, posted_at FROM jobs ORDER BY posted_at DESC LIMIT 3"
+    );
+    res.render("landing", { title: "Alumni Connect | Stay Connected", stats, recentAlumni, upcomingEvents, latestJobs });
+  } catch (err) { next(err); }
+});
 // Public contact form. The SMTP recipient is the configured SMTP_FROM address.
 app.get("/contact", (req, res) => res.render("contact", { title: "Contact Us", error: null, message: null, values: {} }));
 app.post("/contact", async (req, res, next) => {
@@ -267,7 +288,7 @@ app.post("/logout", auth, (req, res, next) => {
   req.session.destroy(err => {
     if (err) return next(err);
     res.clearCookie("alumni.sid");
-    res.redirect("/signin");
+    res.redirect("/");
   });
 });
 
