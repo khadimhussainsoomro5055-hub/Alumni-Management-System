@@ -19,6 +19,11 @@ test("session persistence is backed by MySQL", () => {
   assert.match(app, /CREATE TABLE IF NOT EXISTS app_sessions/);
 });
 
+test("sign-in regenerates the session and issues a fresh CSRF token", () => {
+  const app = read("app.js");
+  assert.match(app, /req\.session\.regenerate\(err => \{[\s\S]*?req\.session\.csrfToken = crypto\.randomBytes\(32\)\.toString\("hex"\);[\s\S]*?req\.session\.user =/);
+});
+
 test("authentication protections and password change route exist", () => {
   const app = read("app.js");
   assert.match(app, /function authLimiter/);
