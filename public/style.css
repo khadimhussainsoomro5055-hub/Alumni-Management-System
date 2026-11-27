@@ -826,3 +826,96 @@ td { font-size:12px; line-height:1.55; }
 .sender-summary-details { display:flex; flex-direction:column; min-width:0; gap:3px; }
 .sender-summary-details strong { font-size:12px; }
 .sender-summary-details span { display:block; color:#68778a; font-size:10px; line-height:1.5; overflow-wrap:anywhere; }
+
+/* Landing, authenticated pages and listing cards share one IBA visual system */
+.app-header {
+  min-height:82px; padding:14px clamp(20px,6vw,88px);
+  background:#fff; color:#17324d; border-bottom:1px solid #edf0f3;
+  box-shadow:0 2px 10px rgba(16,36,58,.035);
+}
+.app-header .logo { color:#17324d; }
+.app-header .site-logo { width:232px; max-height:55px; }
+.header-right { gap:14px; }
+.header-name { color:#17324d; font-weight:700; }
+.header-avatar,.header-avatar-fallback { border:2px solid #f1e8da; }
+.logout { border:1px solid #d8c29f; border-radius:5px; background:#fff; color:#17324d; padding:9px 15px; font-size:11px; font-weight:750; }
+.logout:hover { background:#f5eee3; color:#17324d; }
+.app-footer {
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;
+  padding:25px clamp(20px,6vw,88px); background:#0b1c2d; color:rgba(255,255,255,.66);
+  font-size:11px; line-height:1.6;
+}
+.app-footer-brand { color:#fff; font-family:"Playfair Display",Georgia,serif; font-size:16px; font-weight:700; }
+.app-footer-brand:hover { color:#e0c397; }
+.app-footer-links { display:flex; gap:18px; }
+.app-footer-links a { color:#e0c397; font-weight:700; }
+.app-footer small { color:rgba(255,255,255,.48); }
+.landing-actions { gap:0; }
+.landing-login { display:inline-flex; align-items:center; gap:10px; padding:11px 0 11px 18px; border-left:1px solid #e8e5df; }
+.hero-buttons { margin-top:31px; }
+.landing-section-intro { max-width:560px; margin:12px 0 0; color:#788394; font-size:13px; line-height:1.75; }
+.landing-people { grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+.person-card { min-height:112px; padding:17px; border-radius:9px; box-shadow:0 3px 12px rgba(19,42,66,.035); transition:transform .18s ease,box-shadow .18s ease; }
+.person-card:hover { transform:translateY(-2px); box-shadow:0 9px 22px rgba(19,42,66,.075); }
+.landing-feature-columns { display:grid; grid-template-columns:1fr 1fr; gap:34px; align-items:start; }
+.landing-listing-column { min-width:0; }
+.landing-listing-column .activity-heading { align-items:flex-end; margin-bottom:18px; }
+.landing-listing-column .activity-heading h3 { margin:5px 0 0; font-size:23px; }
+.landing-listing-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:15px; align-items:stretch; }
+.landing-listing-card,.listing-card {
+  min-width:0; overflow:hidden; border:1px solid #e7eaf0; border-radius:10px;
+  background:#fff; box-shadow:0 3px 12px rgba(19,42,66,.045);
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+}
+.landing-listing-card:hover,.listing-card:hover { transform:translateY(-3px); border-color:#d8c29f; box-shadow:0 12px 26px rgba(19,42,66,.09); }
+.listing-image-wrap { position:relative; height:155px; overflow:hidden; background:#e9edf1; }
+.listing-image-wrap > img { display:block; width:100%; height:100%; object-fit:cover; transition:transform .35s ease; }
+.landing-listing-card:hover .listing-image-wrap > img,.listing-card:hover .listing-image-wrap > img { transform:scale(1.035); }
+.listing-image-placeholder { display:flex; align-items:center; justify-content:center; width:100%; height:100%; background:linear-gradient(135deg,#17324d,#31536e); color:#e4c99e; font-size:9px; font-weight:800; letter-spacing:2px; }
+.event-placeholder { background:linear-gradient(135deg,#17324d,#5c6d77); }
+.job-placeholder { background:linear-gradient(135deg,#243a4d,#92754e); }
+.listing-date { position:absolute; left:12px; bottom:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; width:48px; height:54px; border-radius:5px; background:#fff; color:#17324d; box-shadow:0 3px 10px rgba(0,0,0,.12); }
+.listing-date strong { font-family:"Playfair Display",Georgia,serif; font-size:21px; line-height:1; }
+.listing-date span { margin-top:4px; color:#a07843; font-size:9px; font-weight:800; text-transform:uppercase; }
+.listing-type { position:absolute; top:12px; left:12px; padding:6px 9px; border-radius:3px; background:rgba(11,28,45,.88); color:#fff; font-size:8px; font-weight:800; letter-spacing:1px; }
+.listing-card-body { padding:16px; }
+.listing-eyebrow { margin-bottom:7px; color:#a07843; font-size:8px; font-weight:800; letter-spacing:1.4px; }
+.listing-card-body h2,.listing-card-body h4 { margin:0 0 8px; color:#17324d; font-family:"DM Sans",Inter,sans-serif; font-size:15px; font-weight:750; line-height:1.4; }
+.listing-company { margin:0 0 6px; color:#a07843; font-size:11px; font-weight:750; }
+.listing-meta { display:flex; align-items:center; gap:6px; margin:0 0 6px; color:#748194; font-size:10px; line-height:1.5; }
+.listing-meta span { color:#b58b52; }
+.listing-description { display:-webkit-box; overflow:hidden; margin:9px 0 0; color:#788394; font-size:10px; line-height:1.65; -webkit-line-clamp:3; -webkit-box-orient:vertical; }
+.listing-page-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; }
+.listing-page-grid .listing-image-wrap { height:190px; }
+.listing-page-grid .listing-card-body { padding:19px; }
+.listing-page-grid .listing-card-body h2 { font-size:17px; }
+.listing-page-grid .listing-description { font-size:11px; -webkit-line-clamp:4; }
+.listing-image-field small { display:block; margin-top:7px; color:#8290a0; font-size:11px; }
+.current-listing-image { display:flex; align-items:center; gap:13px; margin:0 0 12px; color:#68778a; font-size:11px; }
+.current-listing-image img { width:130px; height:82px; border-radius:7px; object-fit:cover; border:1px solid #e7eaf0; }
+.cta-note { color:#e2c79a; font-size:11px; font-weight:700; letter-spacing:.8px; }
+.landing-footer .footer-links { display:flex; gap:18px; }
+.landing-footer .footer-links a { color:#e0c397; font-weight:700; }
+@media(max-width:1050px) {
+  .landing-people { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .listing-page-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:760px) {
+  .app-header { min-height:70px; padding:10px 18px; }
+  .app-header .site-logo { width:190px; max-height:47px; }
+  .landing-feature-columns { grid-template-columns:1fr; gap:42px; }
+  .landing-listing-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .app-footer { align-items:flex-start; flex-direction:column; gap:10px; padding:23px 20px; }
+}
+@media(max-width:560px) {
+  .app-header { min-height:64px; padding:9px 14px; }
+  .app-header .site-logo { width:158px; }
+  .app-footer { padding:22px 16px; }
+  .landing-people,.landing-listing-grid,.listing-page-grid { grid-template-columns:1fr; }
+  .person-card { min-height:96px; }
+  .listing-page-grid .listing-image-wrap { height:185px; }
+  .landing-listing-grid .listing-image-wrap { height:175px; }
+  .landing-actions { margin-left:auto; }
+  .landing-login { padding-left:11px; font-size:11px; }
+  .landing-footer .footer-links { flex-wrap:wrap; }
+}
