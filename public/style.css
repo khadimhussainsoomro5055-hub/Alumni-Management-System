@@ -820,3 +820,9 @@ td { font-size:12px; line-height:1.55; }
 @media(prefers-reduced-motion:reduce) {
   *,*::before,*::after { animation:none !important; transition:none !important; }
 }
+
+/* Connection composer: signed-in sender's own profile details */
+.sender-summary { align-items:flex-start; }
+.sender-summary-details { display:flex; flex-direction:column; min-width:0; gap:3px; }
+.sender-summary-details strong { font-size:12px; }
+.sender-summary-details span { display:block; color:#68778a; font-size:10px; line-height:1.5; overflow-wrap:anywhere; }
