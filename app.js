@@ -313,8 +313,10 @@ app.post("/logout", auth, (req, res, next) => {
 app.get("/dashboard", auth, async (req, res, next) => {
   try {
     const [[stats]] = await db.query("SELECT (SELECT COUNT(*) FROM alumni) total_alumni,(SELECT COUNT(*) FROM events) total_events,(SELECT COUNT(*) FROM jobs) total_jobs");
+    const [userRows] = await db.execute("SELECT id,full_name,email,degree,department,graduation_year,current_job,company,city,country,profile_photo FROM alumni WHERE id=? LIMIT 1", [req.session.user.id]);
+    if (!userRows.length) return res.redirect("/signin");
     const [recent] = await db.query("SELECT id,full_name,department,graduation_year,profile_photo FROM alumni ORDER BY id DESC LIMIT 6");
-    res.render("dashboard", { title: "Dashboard", stats, recent });
+    res.render("dashboard", { title: "Dashboard", stats, recent, profile: userRows[0] });
   } catch (err) { next(err); }
 });
 app.get("/alumni", auth, async (req, res, next) => {
@@ -481,12 +483,19 @@ app.post("/profile", auth, upload.single("profile_photo"), verifyCsrf, async (re
 });
 
 app.get("/events", auth, async (req, res, next) => {
-  try { const [events] = await db.query("SELECT * FROM events ORDER BY event_date ASC"); res.render("events", { title: "Events", events }); }
-  catch (err) { next(err); }
+  try {
+    const [events] = await db.query("SELECT * FROM events ORDER BY event_date ASC");
+    const [featuredRows] = await db.query("SELECT * FROM events WHERE event_date >= NOW() ORDER BY event_date ASC LIMIT 1");
+    const featuredEvent = featuredRows[0] || events[0] || null;
+    res.render("events", { title: "Events", events, featuredEvent });
+  } catch (err) { next(err); }
 });
 app.get("/jobs", auth, async (req, res, next) => {
-  try { const [jobs] = await db.query("SELECT * FROM jobs ORDER BY posted_at DESC"); res.render("jobs", { title: "Jobs & Opportunities", jobs }); }
-  catch (err) { next(err); }
+  try {
+    const [jobs] = await db.query("SELECT * FROM jobs ORDER BY posted_at DESC");
+    const featuredJob = jobs[0] || null;
+    res.render("jobs", { title: "Jobs & Opportunities", jobs, featuredJob });
+  } catch (err) { next(err); }
 });
 
 // Authenticated password change.
