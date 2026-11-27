@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><%= title %></title><link rel="stylesheet" href="/style.css"></head>
 <body><header class="app-header"><a class="logo" href="/admin"><img class="site-logo" src="/images/iba-alumni-connect.svg" alt="IBA Alumni Connect"></a><form action="/logout" method="POST">
-<input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="logout">Logout</button></form></header>
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="logout">Logout</button></form></header>
 <main class="main"><div class="page-head"><div><h1><%= title %></h1><p class="muted">Only administrators can manage listings.</p></div><a class="btn light" href="/admin">Back to Admin</a></div>
 <div class="profile-card"><form method="POST" enctype="multipart/form-data" action="<%= kind === 'event' ? (item ? '/admin/events/' + item.id : '/admin/events') : (item ? '/admin/jobs/' + item.id : '/admin/jobs') %>"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
 <div class="form-grid"><div class="full"><label>Title</label><input name="title" value="<%= item ? item.title : '' %>" required></div>
@@ -17,4 +17,9 @@
 <input id="listingImage" type="file" name="image" accept="image/jpeg,image/png,image/webp">
 <small>Optional. JPG, PNG or WEBP, maximum 4 MB. Uploading a new image replaces the current one.</small></div>
 <div class="full"><label>Description</label><textarea name="description" rows="5"><%= item ? item.description || '' : '' %></textarea></div>
-</div><br><button class="btn" type="submit"><%= item ? "Save Changes" : "Create" %></button></form></div></main><footer class="app-footer"><a href="/" class="app-footer-brand">IBA Alumni Connect</a><span>Sukkur IBA alumni, connected beyond graduation.</span><div class="app-footer-links"><a href="/contact">Contact</a><a href="/admin">Administration</a></div><small>© <%= new Date().getFullYear() %> Alumni Connect</small></footer></body></html>
+</div><br><button class="btn" type="submit"><%= item ? "Save Changes" : "Create" %></button></form></div></main><footer class="app-footer">
+  <a href="/" class="app-footer-brand">IBA Alumni Connect</a>
+  <span>Sukkur IBA alumni, connected beyond graduation.</span>
+  <div class="app-footer-links"><a href="/contact">Contact</a><a href="/admin">Administration</a></div>
+  <small>© <%= new Date().getFullYear() %> Alumni Connect</small>
+</footer></body></html>
