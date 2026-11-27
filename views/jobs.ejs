@@ -48,6 +48,7 @@
         </div>
       </div>
 
+      <% if (jobs.length) { %>
       <div class="jobs-grid">
         <% jobs.forEach(j => { %>
           <div class="panel">
@@ -58,6 +59,9 @@
           </div>
         <% }) %>
       </div>
+      <% } else { %>
+        <div class="empty-state"><strong>No job opportunities are available</strong><p>New opportunities shared with the alumni community will appear here.</p></div>
+      <% } %>
     </main>
   </div>
 </body>
