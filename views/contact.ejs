@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Contact Us - Alumni Connect</title><link rel="stylesheet" href="/style.css"></head>
 <body><main class="auth-page"><section class="auth-card">
-<div class="brand">Alumni Connect</div><h1>Contact Us</h1><p class="muted">Send a message to the Alumni Connect team.</p>
+<div class="brand"><img class="auth-logo" src="/images/iba-alumni-connect.svg" alt="IBA Alumni Connect"></div><h1>Contact Us</h1><p class="muted">Send a message to the Alumni Connect team.</p>
 <% if (message) { %><div class="alert success"><%= message %></div><% } %>
 <% if (error) { %><div class="alert error"><%= error %></div><% } %>
 <form action="/contact" method="POST"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
