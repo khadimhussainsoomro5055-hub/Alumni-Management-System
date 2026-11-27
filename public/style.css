@@ -420,7 +420,7 @@ p { line-height:1.75; }
 .app-header .site-logo { width: 232px; height: auto; max-height: 54px; object-fit: contain; }
 .auth-logo { width: min(100%, 330px); max-height: 78px; object-fit: contain; }
 .landing-logo { display:block; width: clamp(205px, 19vw, 260px); height:auto; object-fit:contain; }
-.footer-brand .landing-logo { width: min(235px, 70vw); filter: brightness(0) invert(1); }
+.footer-brand .landing-logo { width: min(235px, 70vw); filter:none; }
 .app-header .logo { color:#fff; line-height:0; }
 .app-header .logo:hover { opacity:.92; }
 .auth-card .brand { color:var(--navy-950); }
