@@ -44,6 +44,9 @@
     <main class="main listing-main events-main">
       <% if (featuredEvent) { %>
       <section class="listing-page-hero listing-feature-hero events-feature-hero">
+        <% if (featuredEvent.image_url) { %>
+          <img class="listing-hero-background" src="<%= featuredEvent.image_url %>" alt="" aria-hidden="true">
+        <% } %>
         <div class="listing-hero-copy">
           <span class="dashboard-kicker">FEATURED COMMUNITY EVENT</span>
           <h1><%= featuredEvent.title %></h1>
