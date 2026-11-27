@@ -428,7 +428,7 @@ p { line-height:1.75; }
 .hero-photo {
   background-image:
     url("/images/iba-administration-block.jpg"),
-    url("https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=2200&q=88");
+    url("https://commons.wikimedia.org/wiki/Special:FilePath/Sukkur_IBA_University_-_academic_block_I.jpg");
   background-position:center 78%, center 48%;
   background-size:cover,cover;
   background-repeat:no-repeat,no-repeat;
