@@ -3,7 +3,7 @@
 <body><header class="app-header"><a class="logo" href="/admin"><img class="site-logo" src="/images/iba-alumni-connect-light.svg" alt="IBA Alumni Connect"></a><form action="/logout" method="POST">
 <input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="logout">Logout</button></form></header>
 <main class="main"><div class="page-head"><div><h1><%= title %></h1><p class="muted">Only administrators can manage listings.</p></div><a class="btn light" href="/admin">Back to Admin</a></div>
-<div class="profile-card"><form method="POST" action="<%= kind === 'event' ? (item ? '/admin/events/' + item.id : '/admin/events') : (item ? '/admin/jobs/' + item.id : '/admin/jobs') %>"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
+<div class="profile-card"><form method="POST" enctype="multipart/form-data" action="<%= kind === 'event' ? (item ? '/admin/events/' + item.id : '/admin/events') : (item ? '/admin/jobs/' + item.id : '/admin/jobs') %>"><input type="hidden" name="_csrf" value="<%= csrfToken %>">
 <div class="form-grid"><div class="full"><label>Title</label><input name="title" value="<%= item ? item.title : '' %>" required></div>
 <% if (kind === "event") { %>
 <div><label>Date and Time</label><input type="datetime-local" name="event_date" value="<%= item && item.event_date ? new Date(item.event_date).toISOString().slice(0,16) : '' %>" required></div>
@@ -12,5 +12,9 @@
 <div><label>Company</label><input name="company" value="<%= item ? item.company : '' %>" required></div>
 <div><label>Location</label><input name="location" value="<%= item ? item.location || '' : '' %>"></div>
 <% } %>
+<div class="full listing-image-field"><label for="listingImage">Featured image</label>
+<% if (item && item.image_url) { %><div class="current-listing-image"><img src="<%= item.image_url %>" alt="Current listing image"><span>Current image</span></div><% } %>
+<input id="listingImage" type="file" name="image" accept="image/jpeg,image/png,image/webp">
+<small>Optional. JPG, PNG or WEBP, maximum 4 MB. Uploading a new image replaces the current one.</small></div>
 <div class="full"><label>Description</label><textarea name="description" rows="5"><%= item ? item.description || '' : '' %></textarea></div>
 </div><br><button class="btn" type="submit"><%= item ? "Save Changes" : "Create" %></button></form></div></main></body></html>
