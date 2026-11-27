@@ -10,7 +10,7 @@
 </style>
 </head>
 <body>
-<header class="app-header"><a class="logo" href="/admin"><img class="site-logo" src="/images/iba-alumni-connect-light.svg" alt="IBA Alumni Connect"></a><div class="header-right"><span class="header-name"><%= sessionUser.full_name %></span><form action="/logout" method="POST">
+<header class="app-header"><a class="logo" href="/admin"><img class="site-logo" src="/images/iba-alumni-connect.svg" alt="IBA Alumni Connect"></a><div class="header-right"><span class="header-name"><%= sessionUser.full_name %></span><form action="/logout" method="POST">
 <input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="logout" type="submit">Logout</button></form></div></header>
 <div class="layout"><aside class="sidebar">
 <div class="sidebar-title">Administration</div><a class="nav-item active" href="/admin">Admin Dashboard</a>
@@ -34,4 +34,6 @@
 <% jobs.forEach(job => { %><tr><td><%= job.title %></td><td><%= job.company %></td><td><%= job.location || "Not specified" %></td><td><div class="admin-actions"><a class="btn" href="/admin/jobs/<%= job.id %>/edit">Edit</a><form method="POST" action="/admin/jobs/<%= job.id %>/delete" onsubmit="return confirm('Delete this job?')"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn danger" type="submit">Delete</button></form></div></td></tr><% }) %>
 <% if (!jobs.length) { %><tr><td colspan="4">No jobs found.</td></tr><% } %>
 </tbody></table></div></section>
-</main></div></body></html>
+</main></div>
+<footer class="app-footer"><a href="/" class="app-footer-brand">IBA Alumni Connect</a><span>Sukkur IBA alumni, connected beyond graduation.</span><div class="app-footer-links"><a href="/contact">Contact</a><a href="/dashboard">Dashboard</a></div><small>© <%= new Date().getFullYear() %> Alumni Connect</small></footer>
+</body></html>
