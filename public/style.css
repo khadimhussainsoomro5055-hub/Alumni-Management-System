@@ -414,3 +414,41 @@ p { line-height:1.75; }
 @media(max-width:420px) {
  .site-logo { width:155px; }
 }
+
+
+/* Brand contrast and campus hero reliability fixes */
+.app-header .site-logo { width: 232px; height: auto; max-height: 54px; object-fit: contain; }
+.auth-logo { width: min(100%, 330px); max-height: 78px; object-fit: contain; }
+.landing-logo { display:block; width: clamp(205px, 19vw, 260px); height:auto; object-fit:contain; }
+.footer-brand .landing-logo { width: min(235px, 70vw); filter: brightness(0) invert(1); }
+.app-header .logo { color:#fff; line-height:0; }
+.app-header .logo:hover { opacity:.92; }
+.auth-card .brand { color:var(--navy-950); }
+.auth-card .brand .auth-logo { margin:0 auto 10px; }
+.hero-photo {
+  background-image:
+    url("/images/iba-administration-block.jpg"),
+    url("https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=2200&q=88");
+  background-position:center 78%, center 48%;
+  background-size:cover,cover;
+  background-repeat:no-repeat,no-repeat;
+  background-color:#18344d;
+}
+body, input, select, textarea, button { font-family:"DM Sans", Inter, "Segoe UI", Arial, sans-serif; }
+h1,h2,h3,h4,.card-title,.logo { font-family:"DM Sans", Inter, "Segoe UI", Arial, sans-serif; }
+.page-head h1 { font-size:clamp(26px, 2.5vw, 34px); font-weight:750; letter-spacing:-.8px; }
+.panel h2,.section-head h2 { font-size:19px; font-weight:750; }
+.sidebar .nav-item { font-size:13px; }
+.stat-card h3 { font-size:12px; letter-spacing:.2px; }
+.stat-card .number { font-size:clamp(28px, 2.5vw, 36px); }
+th { font-size:10px; letter-spacing:.7px; }
+td { font-size:13px; }
+.auth-card h1 { font-size:27px; font-weight:750; }
+@media(max-width:760px) {
+  .app-header .site-logo { width:190px; max-height:46px; }
+  .landing-logo { width:clamp(165px, 46vw, 220px); }
+}
+@media(max-width:420px) {
+  .app-header .site-logo { width:158px; }
+  .landing-logo { width:158px; }
+}
